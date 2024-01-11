@@ -40,7 +40,7 @@ INSTALLED_APPS = [
     'patients.apps.PatientsConfig',
     'users.apps.UsersConfig',
     'markers.apps.MarkersConfig',
-
+    'detection_kits.apps.DetectionKitsConfig',
 ]
 
 MIDDLEWARE = [
