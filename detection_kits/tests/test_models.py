@@ -1,12 +1,12 @@
 from django.test import TestCase
-from markers_detection_kits.models import DetectionKit
+from detection_kits.models import DetectionKit
 import datetime
 
 
 class TestDetectionKitModel(TestCase):
     @classmethod
     def setUpTestData(cls):
-        cls.detection_kit = DetectionKit.object.create(
+        cls.detection_kit = DetectionKit.objects.create(
             name='GeneKit',
             date_created=datetime.date(2023, 12, 31),
             created_by=None,
