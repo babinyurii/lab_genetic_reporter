@@ -1,5 +1,6 @@
 from django.test import TestCase
 from patients.models import PatientSample
+from detection_kits.models import DetectionKit
 import datetime
 
 
@@ -20,8 +21,16 @@ class TestPatientSampleModel(TestCase):
             dna_quality_260_230=2.0,
             notes='sample is not frozen',
             created_by=None,
-            #tests=None,
         )
+
+        cls.detection_kit = DetectionKit.objects.create(
+            name='GeneKit',
+            date_created=datetime.date(2023, 12, 31),
+            created_by=None,
+        )
+
+        cls.patient.tests.add(cls.detection_kit) 
+
 
     def test_patientsamplemodel(self):
         self.assertEqual(self.patient.first_name, 'test_first_name')
@@ -37,7 +46,6 @@ class TestPatientSampleModel(TestCase):
         self.assertEqual(self.patient.dna_quality_260_230, 2.0)
         self.assertEqual(self.patient.notes, 'sample is not frozen')
         self.assertEqual(self.patient.created_by, None)
-        #self.assertEqual(self.patient.tests, None)
-
+        self.assertEqual(self.patient.tests.get(pk=self.patient.pk), self.detection_kit)
 
 
