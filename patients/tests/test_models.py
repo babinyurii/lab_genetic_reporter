@@ -1,6 +1,7 @@
 from django.test import TestCase
-from patients.models import PatientSample
+from patients.models import PatientSample, PatientSampleDetectionKit, ResultSNP
 from detection_kits.models import DetectionKit
+from markers.models import SingleNucPol
 import datetime
 
 
@@ -23,11 +24,23 @@ class TestPatientSampleModel(TestCase):
             created_by=None,
         )
 
+        cls.snp_1 = SingleNucPol.objects.create(rs='rs1', gene_name_short='GENE1',
+            nuc_var_1='G', nuc_var_2='A') 
+        cls.snp_2 = SingleNucPol.objects.create(rs='rs2', gene_name_short='GENE2',
+            nuc_var_1='C', nuc_var_2='T')
+        cls.snp_3 = SingleNucPol.objects.create(rs='rs3', gene_name_short='GENE3',
+            nuc_var_1='T', nuc_var_2='A')
+
+
         cls.detection_kit = DetectionKit.objects.create(
             name='GeneKit',
             date_created=datetime.date(2023, 12, 31),
             created_by=None,
         )
+
+        cls.detection_kit.markers.add(cls.snp_1)
+        cls.detection_kit.markers.add(cls.snp_2)
+        cls.detection_kit.markers.add(cls.snp_3)
 
         cls.patient.tests.add(cls.detection_kit) 
 
@@ -47,5 +60,33 @@ class TestPatientSampleModel(TestCase):
         self.assertEqual(self.patient.notes, 'sample is not frozen')
         self.assertEqual(self.patient.created_by, None)
         self.assertEqual(self.patient.tests.get(pk=self.patient.pk), self.detection_kit)
+
+
+    def test_patientsampledetectionkit_model(self):
+        patientsample_detectionkit = PatientSampleDetectionKit.objects.get(patient_sample=self.patient)
+        print('all records from results: ', patientsample_detectionkit)
+        #self.assertEqual(PatientSampleDetectionKit.objects.count(), 3)
+
+        detection_kit = DetectionKit.objects.get(pk=patientsample_detectionkit.test.pk)
+        print(detection_kit)
+        markers = detection_kit.markers.all()
+        print('markers: ', markers)
+        
+        rs_ids = []
+        for marker in markers:
+            rs_ids.append(marker.rs)
+        print('rs_ids: ', rs_ids)
+        # добавлять маркеры в другой список: сравнить после длину
+        result_records = ResultSNP.objects.filter(patient=self.patient, test=self.detection_kit)
+        rs_from_results_table = []
+        for record in result_records:
+            self.assertEqual(record.test, self.detection_kit)
+            self.assertEqual(record.patient_sample, self.patient)
+            self.assertIn(record.rs, rs_ids)
+            rs_from_results_table.append(record.rs)
+        self.assertEqual(len(rs_ids), len(rs_from_results_table))
+        print('rs_ids: ', rs_ids, flush=True)
+        print('rs_from_through: ', rs_from_results_table, flush=True)
+
 
 
