@@ -15,4 +15,9 @@ class DetectionKit(models.Model):
     markers = models.ManyToManyField(SingleNucPol)
     kit_type = models.CharField(max_length=20, choices=KIT_TYPE_CHOICES, default='SNP')
 
+
+    def __str__(self):
+        return self.name
+    
+
     

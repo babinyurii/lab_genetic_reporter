@@ -5,6 +5,7 @@ from markers.models import SingleNucPol
 import datetime
 
 
+
 class TestPatientSampleModel(TestCase):
     @classmethod
     def setUpTestData(cls):
@@ -64,8 +65,8 @@ class TestPatientSampleModel(TestCase):
 
     def test_patientsampledetectionkit_model(self):
         patientsample_detectionkit = PatientSampleDetectionKit.objects.get(patient_sample=self.patient)
+        patientsample_detectionkit.save() # call explicitly to trigger results records generating and saving
         print('all records from results: ', patientsample_detectionkit)
-        #self.assertEqual(PatientSampleDetectionKit.objects.count(), 3)
 
         detection_kit = DetectionKit.objects.get(pk=patientsample_detectionkit.test.pk)
         print(detection_kit)
@@ -77,16 +78,59 @@ class TestPatientSampleModel(TestCase):
             rs_ids.append(marker.rs)
         print('rs_ids: ', rs_ids)
         # добавлять маркеры в другой список: сравнить после длину
-        result_records = ResultSNP.objects.filter(patient=self.patient, test=self.detection_kit)
+        result_records = ResultSNP.objects.filter(patient_sample=self.patient.pk, test=self.detection_kit.pk)
+        print('result records list from QUERY: ', result_records)
         rs_from_results_table = []
         for record in result_records:
+            print('record in LOOP: ', record)
             self.assertEqual(record.test, self.detection_kit)
             self.assertEqual(record.patient_sample, self.patient)
             self.assertIn(record.rs, rs_ids)
+            print('record.rs: ', record.rs)
             rs_from_results_table.append(record.rs)
         self.assertEqual(len(rs_ids), len(rs_from_results_table))
         print('rs_ids: ', rs_ids, flush=True)
         print('rs_from_through: ', rs_from_results_table, flush=True)
+
+
+ 
+class TestResultSNPModel(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.patient = PatientSample.objects.create(
+            first_name='test_first_name',
+            last_name='test_last_name',
+            middle_name='test_middle_name',
+            age=42,
+            clinic_id='patient 404',
+            lab_id='aa67',
+            date_sampled=datetime.date(2023, 12, 31),
+            date_delivered=datetime.date(2024, 1, 1),
+            dna_concentration=70,
+            dna_quality_260_280=1.8,
+            dna_quality_260_230=2.0,
+            notes='sample is not frozen',
+            created_by=None,
+        )  
+
+        cls.detection_kit = DetectionKit.objects.create(
+            name='GeneKit',
+            date_created=datetime.date(2023, 12, 31),
+            created_by=None,
+        ) 
+
+        cls.result_snp = ResultSNP.objects.create(
+            patient_sample=cls.patient,
+            test=cls.detection_kit,
+            rs='rs1',
+            result='GA',
+        )
+
+    def test_resultsnp_model(self):
+        self.assertEqual(self.result_snp.patient_sample, self.patient)
+        self.assertEqual(self.result_snp.test, self.detection_kit)
+        self.assertEqual(self.result_snp.rs, 'rs1')
+        self.assertEqual(self.result_snp.result, 'GA')
 
 
 

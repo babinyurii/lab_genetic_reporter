@@ -21,23 +21,17 @@ class PatientSample(models.Model):
     created_by = models.ForeignKey(CustomUser, null=True, blank=True, on_delete=models.PROTECT)
     tests = models.ManyToManyField(DetectionKit, through='PatientSampleDetectionKit')
 
-    """
-    def save(self, *args, **kwargs):
 
-        print("*" * 100, flush=True)
-        
-        super().save(*args, **kwargs)
-        print('self.tests: ', self.tests)
-        patient_sample = PatientSample.objects.get(pk=self.pk)
-        detection_kits = patient_sample.tests.all()
+    def __str__(self):
+        return f'{self.last_name} {self.first_name}'
 
-        print('self.pk: ', patient_sample)
-        print('self.tests: ', detection_kits)
-    """
-        
+
+    class Meta:
+        verbose_name = 'Sample'
+        verbose_name_plural = 'Samples'
     
 
-
+        
 
 class PatientSampleDetectionKit(models.Model):
     patient_sample = models.ForeignKey(PatientSample, on_delete=models.PROTECT)
@@ -48,13 +42,49 @@ class PatientSampleDetectionKit(models.Model):
     def save(self, *args, **kwargs):
         
         super().save(*args, **kwargs)
-
-        print("*" * 100, flush=True)
         record_pk = self.pk
-        print('current pk: ', record_pk)
-        print('self.patient: ', self.patient_sample)
-        print('self.test: ', self.test)
-        print('markers: ', self.test.markers.all())
+
+        kit_markers = self.test.markers.all()
+
+        for marker in kit_markers:
+            if not ResultSNP.objects.filter(
+                rs=marker.rs, 
+                test=self.test.pk, 
+                patient_sample=self.patient_sample.pk).exists():
+                
+                ResultSNP.objects.create(
+                    patient_sample=self.patient_sample,
+                    test=self.test,
+                    rs=marker.rs,
+                    result=None
+                )
+
+    def __str__(self):
+        return f'{self.test}'
+
+    class Meta:
+        verbose_name = 'Detection kit'
+        verbose_name_plural = 'Detection kits'
+
+
+class ResultSNP(models.Model):
+    patient_sample = models.ForeignKey(PatientSample, on_delete=models.CASCADE)
+    test = models.ForeignKey(DetectionKit, on_delete=models.CASCADE)
+    rs = models.CharField(max_length=20)
+    result = models.CharField(max_length=2, blank=True, null=True)
+    date_modified = models.DateTimeField(auto_now=True)
+
+
+    def __str__(self):
+        return f'{self.patient_sample}. SNP: {self.rs}. result: {self.result}'
+
+    
+    class Meta:
+        verbose_name = 'SNP result'
+        verbose_name_plural = 'SNP results'
+    
+
+
         
     
 
