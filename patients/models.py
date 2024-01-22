@@ -11,7 +11,7 @@ class PatientSample(models.Model):
     middle_name = models.CharField(max_length=255, blank=True, null=True)
     age = models.PositiveIntegerField()
     clinic_id = models.CharField(max_length=255, blank=True, null=True)
-    lab_id = models.CharField(max_length=255)
+    lab_id = models.CharField(max_length=255, unique=True)
     date_sampled = models.DateField(blank=True, null=True)
     date_delivered = models.DateField()
     dna_concentration = models.PositiveIntegerField()

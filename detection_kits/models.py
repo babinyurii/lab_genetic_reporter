@@ -9,7 +9,7 @@ class DetectionKit(models.Model):
         (SNP, 'SNP'),
     )
     
-    name = models.CharField(max_length=255)
+    name = models.CharField(max_length=255, unique=True)
     date_created = models.DateField()
     created_by = models.ForeignKey(CustomUser, on_delete=models.PROTECT, null=True, blank=True)
     markers = models.ManyToManyField(SingleNucPol)
