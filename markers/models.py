@@ -43,8 +43,9 @@ class SingleNucPol(models.Model):
     def clean(self):
         if self.nuc_var_1 == self.nuc_var_2:
             raise ValidationError('Allele 1 and allele 1 variants cannot be the same')
-        if sum([self.nuc_var_1_freq, self.nuc_var_2_freq]) != 1:
-            raise ValidationError('allele frequency sum should be equal to 1')
+        if all([self.nuc_var_1_freq, self.nuc_var_2_freq]): 
+            if sum([self.nuc_var_1_freq, self.nuc_var_2_freq]) != 1:
+                raise ValidationError('allele frequency sum should be equal to 1')
 
 
     def __str__(self):

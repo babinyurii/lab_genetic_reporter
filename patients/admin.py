@@ -1,5 +1,5 @@
 from django.contrib import admin
-from patients.models import PatientSample, PatientSampleDetectionKit, ResultSNP
+from patients.models import PatientSample, PatientSampleDetectionKit, ResultSNP, ReportRuleTwoSNP, ReportCombinations
 from detection_kits.models import DetectionKit
 from patients.models import ResultSNP
 
@@ -30,3 +30,5 @@ class ResultSNPAdmin(admin.ModelAdmin):
 
 admin.site.register(PatientSample, PatientSampleAdmin)
 admin.site.register(ResultSNP, ResultSNPAdmin)
+admin.site.register(ReportCombinations)
+admin.site.register(ReportRuleTwoSNP)

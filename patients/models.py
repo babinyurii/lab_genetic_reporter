@@ -3,7 +3,13 @@ from users.models import CustomUser
 from detection_kits.models import DetectionKit
 from datetime import datetime
 from django.core.validators import MinValueValidator
+from markers.models import SingleNucPol
+from django.core.exceptions import ValidationError
 
+
+def check_if_rs_exists(value):
+    if not SingleNucPol.objects.filter(rs=value).exists():
+        raise ValidationError('this rs id does not exist in the database. please, check "MARKERS" application.')
 
 
 class PatientSample(models.Model):
@@ -72,13 +78,16 @@ class PatientSampleDetectionKit(models.Model):
 class ResultSNP(models.Model):
     patient_sample = models.ForeignKey(PatientSample, on_delete=models.CASCADE)
     test = models.ForeignKey(DetectionKit, on_delete=models.CASCADE)
-    rs = models.CharField(max_length=20)
+    rs = models.CharField(max_length=20, validators=[check_if_rs_exists,])
     result = models.CharField(max_length=2, blank=True, null=True)
     date_modified = models.DateTimeField(auto_now=True)
 
 
     def __str__(self):
         return f'{self.patient_sample}. SNP: {self.rs}. result: {self.result}'
+
+
+
 
     
     class Meta:
@@ -96,22 +105,40 @@ class ReportRuleTwoSNP(models.Model):
     tests = models.ManyToManyField(DetectionKit, related_name='report_rules')
 
 
-    """
+    
     def save(self, *args, **kwargs):
         
         super().save(*args, **kwargs)
-        record_pk = self.pk
 
-        kit_markers = self.test.markers.all()
-    """
+        snp_1 = SingleNucPol.objects.get(rs=self.snp_1)
+        snp_2 = SingleNucPol.objects.get(rs=self.snp_2)
+
+        genotypes_snp_1 = [snp_1.nuc_var_1 + snp_1.nuc_var_1,
+                    snp_1.nuc_var_1 + snp_1.nuc_var_2,
+                    snp_1.nuc_var_2 + snp_1.nuc_var_2]
+        genotypes_snp_2 = [snp_2.nuc_var_1 + snp_2.nuc_var_1,
+                    snp_2.nuc_var_1 + snp_2.nuc_var_2,
+                    snp_2.nuc_var_2 + snp_2.nuc_var_2]
+
+        for genotype_snp_1 in genotypes_snp_1:
+            for genotype_snp_2 in genotypes_snp_2:
+                if not ReportCombinations.objects.filter(
+                            report_rule_two_snp=self,
+                            genotype_snp_1=genotype_snp_1,
+                            genotype_snp_2=genotype_snp_2).exists():
+                    ReportCombinations.objects.create(
+                            report_rule_two_snp=self,
+                            genotype_snp_1=genotype_snp_1,
+                            genotype_snp_2=genotype_snp_2)
+
 
 
 
 class ReportCombinations(models.Model):
     report_rule_two_snp = models.ForeignKey(ReportRuleTwoSNP, on_delete=models.CASCADE)
-    snp_1_var_both_strands = models.CharField(max_length=2, blank=True, null=True)
-    snp_2_var_both_strands = models.CharField(max_length=2, blank=True, null=True)
-    report = models.TextField(max_length=1000)
+    genotype_snp_1 = models.CharField(max_length=2, blank=True, null=True)
+    genotype_snp_2 = models.CharField(max_length=2, blank=True, null=True)
+    report = models.TextField(max_length=1000, blank=True, null=True)
 
         
     

@@ -1,5 +1,5 @@
 from django.test import TestCase
-from patients.models import PatientSample, PatientSampleDetectionKit, ResultSNP, ReportRuleTwoSNP
+from patients.models import PatientSample, PatientSampleDetectionKit, ResultSNP, ReportRuleTwoSNP, ReportCombinations
 from detection_kits.models import DetectionKit
 from markers.models import SingleNucPol
 import datetime
@@ -145,11 +145,19 @@ class TestResultSNPModel(TestCase):
             note='test rule'
         )
 
+        cls.snp_1 = SingleNucPol.objects.create(rs='rs1', gene_name_short='GENE1',
+            nuc_var_1='G', nuc_var_2='A') 
+        cls.snp_2 = SingleNucPol.objects.create(rs='rs2', gene_name_short='GENE2',
+            nuc_var_1='C', nuc_var_2='T')
+
         cls.detection_kit = DetectionKit.objects.create(
-                name='GeneKit',
-                date_created=datetime.date(2023, 12, 31),
-                created_by=None,
-            ) 
+            name='GeneKit',
+            date_created=datetime.date(2023, 12, 31),
+            created_by=None,
+        )
+
+        cls.detection_kit.markers.add(cls.snp_1)
+        cls.detection_kit.markers.add(cls.snp_2)
         
         cls.report_rule.tests.add(cls.detection_kit)
 
@@ -159,3 +167,29 @@ class TestResultSNPModel(TestCase):
         self.assertEqual(self.report_rule.snp_1, 'rs1')
         self.assertEqual(self.report_rule.snp_2, 'rs2')
         self.assertEqual(self.report_rule.note, 'test rule')
+
+
+    def test_reportcombinations(self):
+        report_rule = self.detection_kit.report_rules.all()[0]
+        print('report rules: ', report_rule)
+        report_combs = ReportCombinations.objects.filter(report_rule_two_snp=report_rule.pk)
+        print(report_combs)
+        self.assertEqual(len(report_combs), 9)
+
+        genotypes_snp_1 = [self.snp_1.nuc_var_1 + self.snp_1.nuc_var_1,
+                    self.snp_1.nuc_var_1 + self.snp_1.nuc_var_2,
+                    self.snp_1.nuc_var_2 + self.snp_1.nuc_var_2]
+        genotypes_snp_2 = [self.snp_2.nuc_var_1 + self.snp_2.nuc_var_1,
+                    self.snp_2.nuc_var_1 + self.snp_2.nuc_var_2,
+                    self.snp_2.nuc_var_2 + self.snp_2.nuc_var_2]
+
+        # collect genotypes combinations from report combs objects
+        genotypes_combinations = []
+        for report_comb in report_combs:
+            genotypes_combinations.append((report_comb.genotype_snp_1, 
+                                            report_comb.genotype_snp_2,),)
+
+        for genotype_snp_1 in genotypes_snp_1:
+            for genotype_snp_2 in genotypes_snp_2:
+                self.assertIn((genotype_snp_1, genotype_snp_2) in genotypes_combinations)
+
