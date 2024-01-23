@@ -14,6 +14,7 @@ class DetectionKit(models.Model):
     created_by = models.ForeignKey(CustomUser, on_delete=models.PROTECT, null=True, blank=True)
     markers = models.ManyToManyField(SingleNucPol)
     kit_type = models.CharField(max_length=20, choices=KIT_TYPE_CHOICES, default='SNP')
+    
 
 
     def __str__(self):

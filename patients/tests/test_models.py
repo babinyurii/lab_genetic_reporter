@@ -1,5 +1,5 @@
 from django.test import TestCase
-from patients.models import PatientSample, PatientSampleDetectionKit, ResultSNP
+from patients.models import PatientSample, PatientSampleDetectionKit, ResultSNP, ReportRuleTwoSNP
 from detection_kits.models import DetectionKit
 from markers.models import SingleNucPol
 import datetime
@@ -134,3 +134,28 @@ class TestResultSNPModel(TestCase):
 
 
 
+
+class TestResultSNPModel(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.report_rule = ReportRuleTwoSNP.objects.create(
+            name='COL1 and MMP1 report rule',
+            snp_1='rs1',
+            snp_2='rs2',
+            note='test rule'
+        )
+
+        cls.detection_kit = DetectionKit.objects.create(
+                name='GeneKit',
+                date_created=datetime.date(2023, 12, 31),
+                created_by=None,
+            ) 
+        
+        cls.report_rule.tests.add(cls.detection_kit)
+
+
+    def test_reportruletwosnp_model(self):
+        self.assertEqual(self.report_rule.name, 'COL1 and MMP1 report rule')
+        self.assertEqual(self.report_rule.snp_1, 'rs1')
+        self.assertEqual(self.report_rule.snp_2, 'rs2')
+        self.assertEqual(self.report_rule.note, 'test rule')

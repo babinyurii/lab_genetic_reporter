@@ -84,8 +84,34 @@ class ResultSNP(models.Model):
     class Meta:
         verbose_name = 'SNP result'
         verbose_name_plural = 'SNP results'
-    
 
+
+
+
+class ReportRuleTwoSNP(models.Model):
+    name = models.CharField(max_length=255)
+    snp_1 = models.CharField(max_length=20)
+    snp_2 = models.CharField(max_length=20)
+    note = models.TextField(max_length=1000)
+    tests = models.ManyToManyField(DetectionKit, related_name='report_rules')
+
+
+    """
+    def save(self, *args, **kwargs):
+        
+        super().save(*args, **kwargs)
+        record_pk = self.pk
+
+        kit_markers = self.test.markers.all()
+    """
+
+
+
+class ReportCombinations(models.Model):
+    report_rule_two_snp = models.ForeignKey(ReportRuleTwoSNP, on_delete=models.CASCADE)
+    snp_1_var_both_strands = models.CharField(max_length=2, blank=True, null=True)
+    snp_2_var_both_strands = models.CharField(max_length=2, blank=True, null=True)
+    report = models.TextField(max_length=1000)
 
         
     
