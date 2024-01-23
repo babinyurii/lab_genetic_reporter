@@ -2,6 +2,7 @@ from django.db import models
 from users.models import CustomUser
 from detection_kits.models import DetectionKit
 from datetime import datetime
+from django.core.validators import MinValueValidator
 
 
 
@@ -14,7 +15,7 @@ class PatientSample(models.Model):
     lab_id = models.CharField(max_length=255, unique=True)
     date_sampled = models.DateField(blank=True, null=True)
     date_delivered = models.DateField()
-    dna_concentration = models.PositiveIntegerField()
+    dna_concentration = models.PositiveIntegerField(validators=[MinValueValidator(0)])
     dna_quality_260_280 = models.FloatField()
     dna_quality_260_230 = models.FloatField()
     notes = models.TextField(max_length=255)
@@ -34,7 +35,7 @@ class PatientSample(models.Model):
         
 
 class PatientSampleDetectionKit(models.Model):
-    patient_sample = models.ForeignKey(PatientSample, on_delete=models.PROTECT)
+    patient_sample = models.ForeignKey(PatientSample, on_delete=models.PROTECT,)
     test = models.ForeignKey(DetectionKit, on_delete=models.PROTECT)
     date_created = models.DateTimeField(auto_now_add=True)
 
@@ -65,6 +66,7 @@ class PatientSampleDetectionKit(models.Model):
     class Meta:
         verbose_name = 'Detection kit'
         verbose_name_plural = 'Detection kits'
+        constraints = [models.UniqueConstraint(fields=['patient_sample', 'test', ], name='patient_and_test_unique_constraint')]
 
 
 class ResultSNP(models.Model):
