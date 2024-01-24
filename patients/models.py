@@ -82,33 +82,61 @@ class ResultSNP(models.Model):
     result = models.CharField(max_length=2, blank=True, null=True)
     date_modified = models.DateTimeField(auto_now=True)
 
+    class Meta:
+        verbose_name = 'SNP result'
+        verbose_name_plural = 'SNP results'
 
     def __str__(self):
         return f'{self.patient_sample}. SNP: {self.rs}. result: {self.result}'
 
 
     def save(self, *args, **kwargs):
+        update_obj = False
+        print('self.pk before save: ', self.pk, flush=True)        
+        if self.pk:
+            update_obj = True
+        
         super().save(*args, **kwargs)
         print(ResultSNP.objects.filter(
             test=self.test,
             patient_sample=self.patient_sample,
         ))
 
-        objs = ResultSNP.objects.filter(
-            test=self.test,
-            patient_sample=self.patient_sample)
+        if update_obj: # look for conclusion creation only when snp results are updated,
+            # not created automatically after patient creation
+            results_snp = ResultSNP.objects.filter(
+                test=self.test,
+                patient_sample=self.patient_sample)
 
-        results = [obj.result for obj in objs]
-        print('results: ', results)
+            results = [obj.result for obj in results_snp]
+            print('results: ', results)
 
-        if all(results):
-            print('generating report')
+            if all(results):
+                print('generating report')
+                text = ''
+                test = self.test
+                rules = ReportRuleTwoSNP.objects.filter(
+                    tests=self.test
+                )
+                for rule in rules:
+                    combs = ReportCombinations.objects.filter(
+                        report_rule_two_snp=rule
+                    )
+                    snp_1_rs = rule.snp_1
+                    snp_2_rs = rule.snp_2
+                    snp_1_result = results_snp.get(rs=snp_1_rs).result
+                    snp_2_result = results_snp.get(rs=snp_2_rs).result
+                    conclusion_for_result = combs.get(genotype_snp_1=snp_1_result,
+                                                              genotype_snp_2=snp_2_result)
+                    text += conclusion_for_result.report
+                    print(text)
+                
+                ConclusionSNP.objects.create(patient=self.patient_sample,
+                test=self.test, conclusion=text )
 
 
     
-    class Meta:
-        verbose_name = 'SNP result'
-        verbose_name_plural = 'SNP results'
+
 
 
 
