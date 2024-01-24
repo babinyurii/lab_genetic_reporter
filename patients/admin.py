@@ -1,5 +1,5 @@
 from django.contrib import admin
-from patients.models import PatientSample, PatientSampleDetectionKit, ResultSNP, ReportRuleTwoSNP, ReportCombinations
+from patients.models import PatientSample, PatientSampleDetectionKit, ResultSNP, ReportRuleTwoSNP, ReportCombinations, ConclusionSNP
 from detection_kits.models import DetectionKit
 from patients.models import ResultSNP
 
@@ -57,3 +57,4 @@ admin.site.register(PatientSample, PatientSampleAdmin)
 admin.site.register(ResultSNP, ResultSNPAdmin)
 admin.site.register(ReportCombinations, ReportCombinationsAdmin)
 admin.site.register(ReportRuleTwoSNP, ReportRuleTwoSNPAdmin)
+admin.site.register(ConclusionSNP)

@@ -169,6 +169,20 @@ class ReportCombinations(models.Model):
     def __str__(self):
         return self.report_rule_two_snp.name
 
+
+class ConclusionSNP(models.Model):
+    patient = models.ForeignKey(PatientSample, on_delete=models.CASCADE)
+    test = models.ForeignKey(DetectionKit, on_delete=models.CASCADE)
+    conclusion = models.TextField(max_length=5000)
+
+    class Meta:
+        verbose_name = 'conclusion for report'
+        verbose_name_plural = 'conclusions for reports'
+
+    def __str__(self):
+        return f'conclusion for: {self.patient}, test: {self.test}'
+    
+
     
      
     

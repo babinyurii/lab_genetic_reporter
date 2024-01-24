@@ -1,5 +1,5 @@
 from django.test import TestCase
-from patients.models import PatientSample, PatientSampleDetectionKit, ResultSNP, ReportRuleTwoSNP, ReportCombinations
+from patients.models import PatientSample, PatientSampleDetectionKit, ResultSNP, ReportRuleTwoSNP, ReportCombinations, ConclusionSNP
 from detection_kits.models import DetectionKit
 from markers.models import SingleNucPol
 import datetime
@@ -135,15 +135,9 @@ class TestResultSNPModel(TestCase):
 
 
 
-class TestResultSNPModel(TestCase):
+class TestResultSNPModel(TestCase): # TODO class name seems to be wrong
     @classmethod
     def setUpTestData(cls):
-        cls.report_rule = ReportRuleTwoSNP.objects.create(
-            name='COL1 and MMP1 report rule',
-            snp_1='rs1',
-            snp_2='rs2',
-            note='test rule'
-        )
 
         cls.snp_1 = SingleNucPol.objects.create(rs='rs1', gene_name_short='GENE1',
             nuc_var_1='G', nuc_var_2='A') 
@@ -158,6 +152,14 @@ class TestResultSNPModel(TestCase):
 
         cls.detection_kit.markers.add(cls.snp_1)
         cls.detection_kit.markers.add(cls.snp_2)
+        cls.report_rule = ReportRuleTwoSNP.objects.create(
+            name='COL1 and MMP1 report rule',
+            snp_1='rs1',
+            snp_2='rs2',
+            note='test rule'
+        )
+
+       
         
         cls.report_rule.tests.add(cls.detection_kit)
 
@@ -191,5 +193,45 @@ class TestResultSNPModel(TestCase):
 
         for genotype_snp_1 in genotypes_snp_1:
             for genotype_snp_2 in genotypes_snp_2:
-                self.assertIn((genotype_snp_1, genotype_snp_2) in genotypes_combinations)
+                self.assertIn((genotype_snp_1, genotype_snp_2,), genotypes_combinations)
+
+
+class TestConclusionSNPModel(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        
+        cls.detection_kit = DetectionKit.objects.create(
+            name='GeneKit',
+            date_created=datetime.date(2023, 12, 31),
+            created_by=None,
+        )
+
+        cls.patient = PatientSample.objects.create(
+            first_name='test_first_name',
+            last_name='test_last_name',
+            middle_name='test_middle_name',
+            age=42,
+            clinic_id='patient 404',
+            lab_id='aa67',
+            date_sampled=datetime.date(2023, 12, 31),
+            date_delivered=datetime.date(2024, 1, 1),
+            dna_concentration=70,
+            dna_quality_260_280=1.8,
+            dna_quality_260_230=2.0,
+            notes='sample is not frozen',
+            created_by=None,
+        )  
+
+
+        cls.conc = ConclusionSNP.objects.create(
+            patient=cls.patient,
+            test=cls.detection_kit,
+            conclusion='test conclusion'
+        )
+
+    def test_conclusionsnpmodel(self):
+        self.assertEqual(self.conc.patient, self.patient)
+        self.assertEqual(self.conc.test, self.detection_kit)
+        self.assertEqual(self.conc.conclusion, 'test conclusion')
+
 
