@@ -79,7 +79,7 @@ class ResultSNP(models.Model):
     patient_sample = models.ForeignKey(PatientSample, on_delete=models.CASCADE)
     test = models.ForeignKey(DetectionKit, on_delete=models.CASCADE)
     rs = models.CharField(max_length=20, validators=[check_if_rs_exists,])
-    result = models.CharField(max_length=2, blank=True, null=True)
+    result = models.CharField(max_length=2, blank=True, null=True, help_text='use only English characters for result')
     date_modified = models.DateTimeField(auto_now=True)
 
     class Meta:
@@ -122,10 +122,14 @@ class ResultSNP(models.Model):
                     combs = ReportCombinations.objects.filter(
                         report_rule_two_snp=rule
                     )
+                    print('combs: ', combs)
                     snp_1_rs = rule.snp_1
                     snp_2_rs = rule.snp_2
                     snp_1_result = results_snp.get(rs=snp_1_rs).result
                     snp_2_result = results_snp.get(rs=snp_2_rs).result
+                    print('snp_1_result: ', snp_1_result, '  snp_2_result: ', snp_2_result)
+                    for comb in combs:
+                        print('comb genotype 1: ', comb.genotype_snp_1, 'comb genotype 2: ', comb.genotype_snp_2)
                     conclusion_for_result = combs.get(genotype_snp_1=snp_1_result,
                                                               genotype_snp_2=snp_2_result)
                     text += conclusion_for_result.report

@@ -17,7 +17,9 @@ class PatientSampleAdmin(admin.ModelAdmin):
 
 
 class ResultSNPAdmin(admin.ModelAdmin):
-    list_display = ('patient_sample',
+    readonly_fields = ('patient_sample', 'test', 'rs')
+
+    list_display = ('patient_sample', 
                     'test',
                     'rs', 
                     'result',
@@ -25,6 +27,10 @@ class ResultSNPAdmin(admin.ModelAdmin):
     search_fields = ('patient_sample__last_name', 'rs',  )
     search_help_text = 'Search by last name or rs. Case sensitive. f.e. use "Иванов", not "иванов"'
     list_filter = ('test', )
+
+
+    def has_add_permission(self, request, obj=None):
+        return False
 
 
 class ReportRuleTwoSNPAdmin(admin.ModelAdmin):
@@ -42,6 +48,9 @@ class ReportCombinationsAdmin(admin.ModelAdmin):
 
     def tests(self, obj):
         return ', '.join([kit.name for kit in obj.report_rule_two_snp.tests.all()])
+
+    def has_add_permission(self, request, obj=None):
+        return False
     
     # пока в объекте report_rule_two_snp строки, а не ссылки на объекты
     # попробовать после, когда может быть будут ссылки на сами объекты
@@ -50,6 +59,12 @@ class ReportCombinationsAdmin(admin.ModelAdmin):
         rs_snp_1 = obj.report_rule_two_snp.snp_1
     """
 
+class ConclusionSNPAdmin(admin.ModelAdmin):
+    search_fields = ('patient',)
+    search_help_text = 'search by patient. case sensitive. use "Иванов", not "иванов"'
+
+    def has_add_permission(self, request, obj=None):
+        return False
 
 
 
@@ -57,4 +72,4 @@ admin.site.register(PatientSample, PatientSampleAdmin)
 admin.site.register(ResultSNP, ResultSNPAdmin)
 admin.site.register(ReportCombinations, ReportCombinationsAdmin)
 admin.site.register(ReportRuleTwoSNP, ReportRuleTwoSNPAdmin)
-admin.site.register(ConclusionSNP)
+admin.site.register(ConclusionSNP, ConclusionSNPAdmin)
