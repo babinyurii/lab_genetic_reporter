@@ -87,6 +87,22 @@ class ResultSNP(models.Model):
         return f'{self.patient_sample}. SNP: {self.rs}. result: {self.result}'
 
 
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        print(ResultSNP.objects.filter(
+            test=self.test,
+            patient_sample=self.patient_sample,
+        ))
+
+        objs = ResultSNP.objects.filter(
+            test=self.test,
+            patient_sample=self.patient_sample)
+
+        results = [obj.result for obj in objs]
+        print('results: ', results)
+
+        if all(results):
+            print('generating report')
 
 
     
@@ -106,6 +122,10 @@ class ReportRuleTwoSNP(models.Model):
 
 
     
+    def __str__(self):
+        return self.name
+
+
     def save(self, *args, **kwargs):
         
         super().save(*args, **kwargs)
@@ -131,6 +151,8 @@ class ReportRuleTwoSNP(models.Model):
                             genotype_snp_1=genotype_snp_1,
                             genotype_snp_2=genotype_snp_2)
 
+    
+
 
 
 
@@ -139,6 +161,20 @@ class ReportCombinations(models.Model):
     genotype_snp_1 = models.CharField(max_length=2, blank=True, null=True)
     genotype_snp_2 = models.CharField(max_length=2, blank=True, null=True)
     report = models.TextField(max_length=1000, blank=True, null=True)
+
+    class Meta:
+        verbose_name = 'report rules: conclusions for genotype combinations'
+        verbose_name_plural = 'report rules: conclusions for genotype combinations'
+
+    def __str__(self):
+        return self.report_rule_two_snp.name
+
+    
+     
+    
+
+    
+    
 
         
     

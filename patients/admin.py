@@ -27,8 +27,33 @@ class ResultSNPAdmin(admin.ModelAdmin):
     list_filter = ('test', )
 
 
+class ReportRuleTwoSNPAdmin(admin.ModelAdmin):
+    list_display = ('name', 'snp_1', 'snp_2', 'note', )
+    list_filter = ('tests',)
+
+    
+    #def tests(self, obj):
+    #    return ', '.join([kit.name for kit in obj.tests.all()])
+    
+
+class ReportCombinationsAdmin(admin.ModelAdmin):
+    list_display = ('report_rule_two_snp', 'tests', 'genotype_snp_1', 'genotype_snp_2', 'report', )
+    list_filter = ('report_rule_two_snp',)
+
+    def tests(self, obj):
+        return ', '.join([kit.name for kit in obj.report_rule_two_snp.tests.all()])
+    
+    # пока в объекте report_rule_two_snp строки, а не ссылки на объекты
+    # попробовать после, когда может быть будут ссылки на сами объекты
+    """
+    def snp_1(self, obj):
+        rs_snp_1 = obj.report_rule_two_snp.snp_1
+    """
+
+
+
 
 admin.site.register(PatientSample, PatientSampleAdmin)
 admin.site.register(ResultSNP, ResultSNPAdmin)
-admin.site.register(ReportCombinations)
-admin.site.register(ReportRuleTwoSNP)
+admin.site.register(ReportCombinations, ReportCombinationsAdmin)
+admin.site.register(ReportRuleTwoSNP, ReportRuleTwoSNPAdmin)
