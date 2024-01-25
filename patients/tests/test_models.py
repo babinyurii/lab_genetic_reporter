@@ -10,7 +10,7 @@ from patients.models import (PatientSample,
                             ConclusionSNP)
 
 
-class TestPatientSampleModel(TestCase):
+class TestPatientAppModels(TestCase):
     @classmethod
     def setUpTestData(cls):
         cls.patient = PatientSample.objects.create(
@@ -35,6 +35,8 @@ class TestPatientSampleModel(TestCase):
             nuc_var_1='C', nuc_var_2='T')
         cls.snp_3 = SingleNucPol.objects.create(rs='rs3', gene_name_short='GENE3',
             nuc_var_1='T', nuc_var_2='A')
+        cls.snp_4 = SingleNucPol.objects.create(rs='rs4', gene_name_short='GENE4',
+            nuc_var_1='G', nuc_var_2='C')
 
 
         cls.detection_kit = DetectionKit.objects.create(
@@ -46,16 +48,17 @@ class TestPatientSampleModel(TestCase):
         cls.detection_kit.markers.add(cls.snp_1)
         cls.detection_kit.markers.add(cls.snp_2)
         cls.detection_kit.markers.add(cls.snp_3)
+        cls.detection_kit.markers.add(cls.snp_4)
 
         cls.patient.tests.add(cls.detection_kit) 
 
 
-        cls.result_snp = ResultSNP.objects.create(
-            patient_sample=cls.patient,
-            test=cls.detection_kit,
-            rs='rs1',
-            result='GA',
-        )
+        #cls.result_snp = ResultSNP.objects.create(
+        #    patient_sample=cls.patient,
+        #    test=cls.detection_kit,
+        #    rs='rs1',
+        #    result='GA',
+        #)
 
         cls.report_rule = ReportRuleTwoSNP.objects.create(
             name='COL1 and MMP1 report rule',
@@ -66,11 +69,28 @@ class TestPatientSampleModel(TestCase):
 
         cls.report_rule.tests.add(cls.detection_kit)
 
-        cls.conc = ConclusionSNP.objects.create(
-            patient=cls.patient,
-            test=cls.detection_kit,
-            conclusion='test conclusion'
+
+        
+        report_combs = ReportCombinations.objects.filter(
+            report_rule_two_snp=cls.detection_kit.report_rules.all()[0].pk
         )
+
+        for report_comb in report_combs:
+            report_comb.report = f'report: {report_comb.genotype_snp_1} and {report_comb.genotype_snp_2}'
+            report_comb.save()
+
+
+        #cls.conc = ConclusionSNP.objects.create(
+        #    patient=cls.patient,
+        #    test=cls.detection_kit,
+        #    conclusion='test conclusion'
+        #)
+
+        cls.patientsample_detectionkit = PatientSampleDetectionKit.objects.get(patient_sample=cls.patient)
+        cls.patientsample_detectionkit.save() # call explicitly to trigger results records generating and saving
+
+        
+
 
 
     def test_patientsamplemodel(self):
@@ -91,39 +111,38 @@ class TestPatientSampleModel(TestCase):
 
 
     def test_patientsampledetectionkit_model(self):
-        patientsample_detectionkit = PatientSampleDetectionKit.objects.get(patient_sample=self.patient)
-        patientsample_detectionkit.save() # call explicitly to trigger results records generating and saving
-        print('all records from results: ', patientsample_detectionkit)
+        
+        #print('all records from results: ', patientsample_detectionkit)
 
-        detection_kit = DetectionKit.objects.get(pk=patientsample_detectionkit.test.pk)
-        print(detection_kit)
+        detection_kit = DetectionKit.objects.get(pk=self.patientsample_detectionkit.test.pk)
+        #print(detection_kit)
         markers = detection_kit.markers.all()
-        print('markers: ', markers)
+        #print('markers: ', markers)
         
         rs_ids = []
         for marker in markers:
             rs_ids.append(marker.rs)
-        print('rs_ids: ', rs_ids)
+        #print('rs_ids: ', rs_ids)
         # добавлять маркеры в другой список: сравнить после длину
         result_records = ResultSNP.objects.filter(patient_sample=self.patient.pk, test=self.detection_kit.pk)
-        print('result records list from QUERY: ', result_records)
+        #print('result records list from QUERY: ', result_records)
         rs_from_results_table = []
         for record in result_records:
-            print('record in LOOP: ', record)
+            #print('record in LOOP: ', record)
             self.assertEqual(record.test, self.detection_kit)
             self.assertEqual(record.patient_sample, self.patient)
             self.assertIn(record.rs, rs_ids)
-            print('record.rs: ', record.rs)
+            #print('record.rs: ', record.rs)
             rs_from_results_table.append(record.rs)
         self.assertEqual(len(rs_ids), len(rs_from_results_table))
-        print('rs_ids: ', rs_ids, flush=True)
-        print('rs_from_through: ', rs_from_results_table, flush=True)
+        #print('rs_ids: ', rs_ids, flush=True)
+        #print('rs_from_through: ', rs_from_results_table, flush=True)
 
-    def test_resultsnp_model(self):
-        self.assertEqual(self.result_snp.patient_sample, self.patient)
-        self.assertEqual(self.result_snp.test, self.detection_kit)
-        self.assertEqual(self.result_snp.rs, 'rs1')
-        self.assertEqual(self.result_snp.result, 'GA')
+    #def test_resultsnp_model(self):
+    #    self.assertEqual(self.result_snp.patient_sample, self.patient)
+    #    self.assertEqual(self.result_snp.test, self.detection_kit)
+    #    self.assertEqual(self.result_snp.rs, 'rs1')
+    #    self.assertEqual(self.result_snp.result, 'GA')
 
     def test_reportruletwosnp_model(self):
         self.assertEqual(self.report_rule.name, 'COL1 and MMP1 report rule')
@@ -134,9 +153,9 @@ class TestPatientSampleModel(TestCase):
 
     def test_reportcombinations(self):
         report_rule = self.detection_kit.report_rules.all()[0]
-        print('report rules: ', report_rule)
+        #print('report rules: ', report_rule)
         report_combs = ReportCombinations.objects.filter(report_rule_two_snp=report_rule.pk)
-        print(report_combs)
+        #print(report_combs)
         self.assertEqual(len(report_combs), 9)
 
         genotypes_snp_1 = [self.snp_1.nuc_var_1 + self.snp_1.nuc_var_1,
@@ -157,10 +176,57 @@ class TestPatientSampleModel(TestCase):
                 self.assertIn((genotype_snp_1, genotype_snp_2,), genotypes_combinations)
 
 
-    def test_conclusionsnpmodel(self):
-        self.assertEqual(self.conc.patient, self.patient)
-        self.assertEqual(self.conc.test, self.detection_kit)
-        self.assertEqual(self.conc.conclusion, 'test conclusion')
+    #def test_conclusionsnpmodel(self):
+    #    self.assertEqual(self.conc.patient, self.patient)
+    #    self.assertEqual(self.conc.test, self.detection_kit)
+    #    self.assertEqual(self.conc.conclusion, 'test conclusion')
+
+
+
+
+    def test_conclusionmodel(self):
+        #results = ResultSNP.objects.all()
+        snps = SingleNucPol.objects.all()
+            #print('result: ', result, flush=True)
+        for snp in snps:
+            result = ResultSNP.objects.get(rs=snp.rs) 
+            result.result = f'{snp.nuc_var_1}{snp.nuc_var_1}' # all homozygous
+            result.save()
+        
+        self.assertEqual(ConclusionSNP.objects.all().count(), 1)
+        conc = ConclusionSNP.objects.get(test=self.detection_kit, patient=self.patient)
+        self.assertEqual(conc.conclusion, 'report: GG and CC')
+
+
+        for snp in snps:
+            result = ResultSNP.objects.get(rs=snp.rs) 
+            result.result = f'{snp.nuc_var_1}{snp.nuc_var_2}' # all homozygous
+            result.save()
+        
+        self.assertEqual(ConclusionSNP.objects.all().count(), 1)
+        conc = ConclusionSNP.objects.get(test=self.detection_kit, patient=self.patient)
+        self.assertEqual(conc.conclusion, 'report: GA and CT')
+
+
+        for snp in snps:
+            result = ResultSNP.objects.get(rs=snp.rs) 
+            result.result = f'{snp.nuc_var_2}{snp.nuc_var_2}' # all homozygous
+            result.save()
+        
+        self.assertEqual(ConclusionSNP.objects.all().count(), 1)
+        conc = ConclusionSNP.objects.get(test=self.detection_kit, patient=self.patient)
+        self.assertEqual(conc.conclusion, 'report: AA and TT')
+        
+        
+
+
+
+    
+
+
+
+
+
 
 
 

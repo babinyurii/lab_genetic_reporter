@@ -134,9 +134,13 @@ class ResultSNP(models.Model):
                                                               genotype_snp_2=snp_2_result)
                     text += conclusion_for_result.report
                     print(text)
-                
-                ConclusionSNP.objects.create(patient=self.patient_sample,
-                test=self.test, conclusion=text )
+                if not ConclusionSNP.objects.filter(patient=self.patient_sample, test=self.test).exists():
+                    ConclusionSNP.objects.create(patient=self.patient_sample,
+                                                test=self.test, conclusion=text )
+                else:
+                    conc_obj = ConclusionSNP.objects.get(patient=self.patient_sample, test=self.test)
+                    conc_obj.conclusion = text
+                    conc_obj.save()
 
 
     
