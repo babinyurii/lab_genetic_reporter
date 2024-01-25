@@ -1,8 +1,13 @@
+import datetime
 from django.test import TestCase
-from patients.models import PatientSample, PatientSampleDetectionKit, ResultSNP, ReportRuleTwoSNP, ReportCombinations, ConclusionSNP
 from detection_kits.models import DetectionKit
 from markers.models import SingleNucPol
-import datetime
+from patients.models import (PatientSample, 
+                            PatientSampleDetectionKit, 
+                            ResultSNP, 
+                            ReportRuleTwoSNP, 
+                            ReportCombinations, 
+                            ConclusionSNP)
 
 
 
