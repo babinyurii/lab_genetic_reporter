@@ -6,7 +6,7 @@ from markers.models import SingleNucPol
 class DetectionKit(models.Model):
     SNP = 'SNP'
     KIT_TYPE_CHOICES = (
-        (SNP, 'SNP'),
+        (SNP, 'in-house SNP assay'),
     )
     
     name = models.CharField(max_length=255, unique=True)
@@ -15,6 +15,10 @@ class DetectionKit(models.Model):
     markers = models.ManyToManyField(SingleNucPol)
     kit_type = models.CharField(max_length=20, choices=KIT_TYPE_CHOICES, default='SNP')
     
+
+    class Meta:
+        verbose_name = 'SNP detection kit'
+        verbose_name_plural = 'SNP detection kits'
 
 
     def __str__(self):

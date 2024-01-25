@@ -2,7 +2,7 @@ from django.db import models
 from users.models import CustomUser
 from detection_kits.models import DetectionKit
 from datetime import datetime
-from django.core.validators import MinValueValidator
+from django.core.validators import MinValueValidator, MaxValueValidator
 from markers.models import SingleNucPol
 from django.core.exceptions import ValidationError
 
@@ -22,9 +22,9 @@ class PatientSample(models.Model):
     date_sampled = models.DateField(blank=True, null=True)
     date_delivered = models.DateField()
     dna_concentration = models.PositiveIntegerField(validators=[MinValueValidator(0)])
-    dna_quality_260_280 = models.FloatField()
-    dna_quality_260_230 = models.FloatField()
-    notes = models.TextField(max_length=255)
+    dna_quality_260_280 = models.FloatField(validators=[MinValueValidator(0.0), MaxValueValidator(3.0)])
+    dna_quality_260_230 = models.FloatField(validators=[MinValueValidator(0.0), MaxValueValidator(3.0)])
+    notes = models.TextField(max_length=255, null=True, blank=True)
     created_by = models.ForeignKey(CustomUser, null=True, blank=True, on_delete=models.PROTECT)
     tests = models.ManyToManyField(DetectionKit, through='PatientSampleDetectionKit')
 
