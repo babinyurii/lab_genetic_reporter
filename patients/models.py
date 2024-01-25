@@ -92,15 +92,10 @@ class ResultSNP(models.Model):
 
     def save(self, *args, **kwargs):
         update_obj = False
-        print('self.pk before save: ', self.pk, flush=True)        
         if self.pk:
             update_obj = True
         
         super().save(*args, **kwargs)
-        print(ResultSNP.objects.filter(
-            test=self.test,
-            patient_sample=self.patient_sample,
-        ))
 
         if update_obj: # look for conclusion creation only when snp results are updated,
             # not created automatically after patient creation
@@ -109,10 +104,8 @@ class ResultSNP(models.Model):
                 patient_sample=self.patient_sample)
 
             results = [obj.result for obj in results_snp]
-            print('results: ', results)
 
             if all(results):
-                print('generating report')
                 text = ''
                 test = self.test
                 rules = ReportRuleTwoSNP.objects.filter(
@@ -122,18 +115,15 @@ class ResultSNP(models.Model):
                     combs = ReportCombinations.objects.filter(
                         report_rule_two_snp=rule
                     )
-                    print('combs: ', combs)
                     snp_1_rs = rule.snp_1
                     snp_2_rs = rule.snp_2
                     snp_1_result = results_snp.get(rs=snp_1_rs).result
                     snp_2_result = results_snp.get(rs=snp_2_rs).result
-                    print('snp_1_result: ', snp_1_result, '  snp_2_result: ', snp_2_result)
-                    for comb in combs:
-                        print('comb genotype 1: ', comb.genotype_snp_1, 'comb genotype 2: ', comb.genotype_snp_2)
+                   
                     conclusion_for_result = combs.get(genotype_snp_1=snp_1_result,
                                                               genotype_snp_2=snp_2_result)
                     text += conclusion_for_result.report
-                    print(text)
+
                 if not ConclusionSNP.objects.filter(patient=self.patient_sample, test=self.test).exists():
                     ConclusionSNP.objects.create(patient=self.patient_sample,
                                                 test=self.test, conclusion=text )
@@ -141,11 +131,6 @@ class ResultSNP(models.Model):
                     conc_obj = ConclusionSNP.objects.get(patient=self.patient_sample, test=self.test)
                     conc_obj.conclusion = text
                     conc_obj.save()
-
-
-    
-
-
 
 
 
@@ -214,6 +199,8 @@ class ConclusionSNP(models.Model):
     class Meta:
         verbose_name = 'conclusion for report'
         verbose_name_plural = 'conclusions for reports'
+        constraints = [models.UniqueConstraint(fields=['patient', 'test', ], 
+                      name='patient_and_test_unique_constraint_for_conclusion')]
 
     def __str__(self):
         return f'conclusion for: {self.patient}, test: {self.test}'
