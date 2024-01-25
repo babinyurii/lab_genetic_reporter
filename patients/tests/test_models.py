@@ -52,9 +52,6 @@ class TestPatientAppModels(TestCase):
 
         cls.patient.tests.add(cls.detection_kit) 
 
-
-
-
         cls.report_rule = ReportRuleTwoSNP.objects.create(
             name='COL1 and MMP1 report rule',
             snp_1='rs1',
@@ -63,8 +60,6 @@ class TestPatientAppModels(TestCase):
         )
 
         cls.report_rule.tests.add(cls.detection_kit)
-
-
         
         report_combs = ReportCombinations.objects.filter(
             report_rule_two_snp=cls.detection_kit.report_rules.all()[0].pk
@@ -74,13 +69,8 @@ class TestPatientAppModels(TestCase):
             report_comb.report = f'report: {report_comb.genotype_snp_1} and {report_comb.genotype_snp_2}'
             report_comb.save()
 
-
-
         cls.patientsample_detectionkit = PatientSampleDetectionKit.objects.get(patient_sample=cls.patient)
         cls.patientsample_detectionkit.save() # call explicitly to trigger results records generating and saving
-
-        
-
 
 
     def test_patientsamplemodel(self):
@@ -101,8 +91,6 @@ class TestPatientAppModels(TestCase):
 
 
     def test_patientsampledetectionkit_model(self):
-        
-
         detection_kit = DetectionKit.objects.get(pk=self.patientsample_detectionkit.test.pk)
         markers = detection_kit.markers.all()
         
@@ -119,7 +107,6 @@ class TestPatientAppModels(TestCase):
             rs_from_results_table.append(record.rs)
         self.assertEqual(len(rs_ids), len(rs_from_results_table))
       
-
 
     def test_reportruletwosnp_model(self):
         self.assertEqual(self.report_rule.name, 'COL1 and MMP1 report rule')
@@ -149,9 +136,6 @@ class TestPatientAppModels(TestCase):
         for genotype_snp_1 in genotypes_snp_1:
             for genotype_snp_2 in genotypes_snp_2:
                 self.assertIn((genotype_snp_1, genotype_snp_2,), genotypes_combinations)
-
-
-
 
 
     def test_conclusionmodel(self):

@@ -172,10 +172,6 @@ class ReportRuleTwoSNP(models.Model):
                             genotype_snp_1=genotype_snp_1,
                             genotype_snp_2=genotype_snp_2)
 
-    
-
-
-
 
 class ReportCombinations(models.Model):
     report_rule_two_snp = models.ForeignKey(ReportRuleTwoSNP, on_delete=models.CASCADE)
