@@ -2,6 +2,8 @@ from django.contrib import admin
 from patients.models import PatientSample, PatientSampleDetectionKit, ResultSNP, ReportRuleTwoSNP, ReportCombinations, ConclusionSNP
 from detection_kits.models import DetectionKit
 from patients.models import ResultSNP
+from patients.forms import ReportRuleForm # ResultSNPForm
+from markers.models import SingleNucPol
 
 
 class PatientSampleDetectionKitInline(admin.TabularInline):
@@ -17,6 +19,7 @@ class PatientSampleAdmin(admin.ModelAdmin):
 
 
 class ResultSNPAdmin(admin.ModelAdmin):
+    #form = ResultSNPForm
     readonly_fields = ('patient_sample', 'test', 'rs')
 
     list_display = ('patient_sample', 
@@ -36,13 +39,15 @@ class ResultSNPAdmin(admin.ModelAdmin):
 class ReportRuleTwoSNPAdmin(admin.ModelAdmin):
     filter_horizontal = ('tests',)
     list_display = ('name', 'note', 'snp_1', 'snp_2', )
-   
+    form = ReportRuleForm
 
+    def formfield_for_foreignkey(self, db_field, request, **kwargs):
+        if db_field.name == "snp_1":
+            kwargs["queryset"] = SingleNucPol.objects.order_by('rs')
+        if db_field.name == "snp_2":
+            kwargs["queryset"] = SingleNucPol.objects.order_by('rs')
+        return super().formfield_for_foreignkey(db_field, request, **kwargs)
 
-    
-    #def tests(self, obj):
-    #    return ', '.join([kit.name for kit in obj.tests.all()])
-    
 
 class ReportCombinationsAdmin(admin.ModelAdmin):
     list_display = ('report_rule_two_snp', 'tests', 'genotype_snp_1', 'genotype_snp_2', 'report', )

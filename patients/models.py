@@ -79,10 +79,14 @@ class PatientSampleDetectionKit(models.Model):
 
 
 class ResultSNP(models.Model):
+
+
     patient_sample = models.ForeignKey(PatientSample, on_delete=models.CASCADE)
     test = models.ForeignKey(DetectionKit, on_delete=models.CASCADE)
     rs = models.CharField(max_length=20, validators=[check_if_rs_exists,])
     result = models.CharField(max_length=2, blank=True, null=True, help_text='use only English characters for result')
+    #result = models.CharField(max_length=2, choices=cls.get_nuc_vars(), verbose_name='result')
+    
     date_created = models.DateTimeField(auto_now_add=True, editable=False)
     date_modified = models.DateTimeField(auto_now=True)
     
@@ -94,6 +98,9 @@ class ResultSNP(models.Model):
     def __str__(self):
         return f'{self.patient_sample}. SNP: {self.rs}. result: {self.result}'
 
+
+    def get_nuc_vars(self):
+        marker = SingleNucPol.objects.get(rs=self.rs)
 
     def save(self, *args, **kwargs):
         update_obj = False
@@ -140,24 +147,30 @@ class ResultSNP(models.Model):
 
 
 class ReportRuleTwoSNP(models.Model):
+    name = models.CharField(max_length=255, unique=True)
     tests = models.ManyToManyField(DetectionKit, related_name='report_rules')
-    name = models.CharField(max_length=255)
+    snp_1 = models.ForeignKey(SingleNucPol, on_delete=models.CASCADE, related_name='report_rules_snp_1')
+    snp_2 = models.ForeignKey(SingleNucPol, on_delete=models.CASCADE, related_name='report_rules_snp_2')
     note = models.TextField(max_length=1000)
-    snp_1 = models.CharField(max_length=20)
-    snp_2 = models.CharField(max_length=20)
     
-    
+
+    #class Meta:
+    #    constraints = [models.UniqueConstraint(fields=['name', 'snp_1', 'snp_2' ], 
+    #                  name='rule_name_and_snp_1_snp_2_constraint')]
+
+
     def __str__(self):
         return self.name
+
 
 
     def save(self, *args, **kwargs):
         
         super().save(*args, **kwargs)
-
-        snp_1 = SingleNucPol.objects.get(rs=self.snp_1)
-        snp_2 = SingleNucPol.objects.get(rs=self.snp_2)
-
+       
+        snp_1 = self.snp_1
+        snp_2 = self.snp_2
+        
         genotypes_snp_1 = [snp_1.nuc_var_1 + snp_1.nuc_var_1,
                     snp_1.nuc_var_1 + snp_1.nuc_var_2,
                     snp_1.nuc_var_2 + snp_1.nuc_var_2]
