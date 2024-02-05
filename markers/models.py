@@ -1,7 +1,7 @@
 from django.db import models
 from django.core.exceptions import ValidationError
 from django.core.validators import URLValidator
-
+from django.utils.timezone import now
 
 def validate_rs(value):
     if not value.startswith('rs'):
@@ -38,6 +38,8 @@ class SingleNucPol(models.Model):
                                         validators=[validate_freq, ])
     db_snp_link = models.URLField(max_length=255, blank=True, null=True, unique=True, verbose_name='dbSNP link',
                                     validators=[URLValidator, ])
+    date_created = models.DateTimeField(auto_now_add=True, editable=False)
+    date_modified = models.DateTimeField(auto_now=True)
     
 
 

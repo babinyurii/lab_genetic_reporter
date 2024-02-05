@@ -10,7 +10,8 @@ class DetectionKit(models.Model):
     )
     
     name = models.CharField(max_length=255, unique=True)
-    date_created = models.DateField()
+    date_created = models.DateTimeField(auto_now_add=True, editable=False)
+    date_modified = models.DateTimeField(auto_now=True)
     created_by = models.ForeignKey(CustomUser, on_delete=models.PROTECT, null=True, blank=True)
     markers = models.ManyToManyField(SingleNucPol)
     kit_type = models.CharField(max_length=20, choices=KIT_TYPE_CHOICES, default='SNP')

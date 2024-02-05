@@ -27,6 +27,9 @@ class PatientSample(models.Model):
     notes = models.TextField(max_length=255, null=True, blank=True)
     created_by = models.ForeignKey(CustomUser, null=True, blank=True, on_delete=models.PROTECT)
     tests = models.ManyToManyField(DetectionKit, through='PatientSampleDetectionKit')
+    date_created = models.DateTimeField(auto_now_add=True, editable=False)
+    date_modified = models.DateTimeField(auto_now=True)
+    
 
 
     def __str__(self):
@@ -80,7 +83,9 @@ class ResultSNP(models.Model):
     test = models.ForeignKey(DetectionKit, on_delete=models.CASCADE)
     rs = models.CharField(max_length=20, validators=[check_if_rs_exists,])
     result = models.CharField(max_length=2, blank=True, null=True, help_text='use only English characters for result')
+    date_created = models.DateTimeField(auto_now_add=True, editable=False)
     date_modified = models.DateTimeField(auto_now=True)
+    
 
     class Meta:
         verbose_name = 'SNP result'
@@ -135,11 +140,12 @@ class ResultSNP(models.Model):
 
 
 class ReportRuleTwoSNP(models.Model):
+    tests = models.ManyToManyField(DetectionKit, related_name='report_rules')
     name = models.CharField(max_length=255)
+    note = models.TextField(max_length=1000)
     snp_1 = models.CharField(max_length=20)
     snp_2 = models.CharField(max_length=20)
-    note = models.TextField(max_length=1000)
-    tests = models.ManyToManyField(DetectionKit, related_name='report_rules')
+    
     
     def __str__(self):
         return self.name
@@ -189,6 +195,9 @@ class ConclusionSNP(models.Model):
     patient = models.ForeignKey(PatientSample, on_delete=models.CASCADE)
     test = models.ForeignKey(DetectionKit, on_delete=models.CASCADE)
     conclusion = models.TextField(max_length=5000)
+    date_created = models.DateTimeField(auto_now_add=True, editable=False)
+    date_modified = models.DateTimeField(auto_now=True)
+    
 
     class Meta:
         verbose_name = 'conclusion for report'

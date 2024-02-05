@@ -34,8 +34,10 @@ class ResultSNPAdmin(admin.ModelAdmin):
 
 
 class ReportRuleTwoSNPAdmin(admin.ModelAdmin):
-    list_display = ('name', 'snp_1', 'snp_2', 'note', )
-    list_filter = ('tests',)
+    filter_horizontal = ('tests',)
+    list_display = ('name', 'note', 'snp_1', 'snp_2', )
+   
+
 
     
     #def tests(self, obj):
