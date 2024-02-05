@@ -140,8 +140,6 @@ class ReportRuleTwoSNP(models.Model):
     snp_2 = models.CharField(max_length=20)
     note = models.TextField(max_length=1000)
     tests = models.ManyToManyField(DetectionKit, related_name='report_rules')
-
-
     
     def __str__(self):
         return self.name
@@ -173,7 +171,7 @@ class ReportRuleTwoSNP(models.Model):
                             genotype_snp_2=genotype_snp_2)
 
 
-class ReportCombinations(models.Model):
+class ReportCombinations(models.Model): # TODO rename to combinations 2 snp. first check if it's neede really
     report_rule_two_snp = models.ForeignKey(ReportRuleTwoSNP, on_delete=models.CASCADE)
     genotype_snp_1 = models.CharField(max_length=2, blank=True, null=True)
     genotype_snp_2 = models.CharField(max_length=2, blank=True, null=True)

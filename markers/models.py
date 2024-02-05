@@ -38,6 +38,7 @@ class SingleNucPol(models.Model):
                                         validators=[validate_freq, ])
     db_snp_link = models.URLField(max_length=255, blank=True, null=True, unique=True, verbose_name='dbSNP link',
                                     validators=[URLValidator, ])
+    
 
 
     def clean(self):
