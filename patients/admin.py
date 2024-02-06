@@ -19,7 +19,6 @@ class PatientSampleAdmin(admin.ModelAdmin):
 
 
 class ResultSNPAdmin(admin.ModelAdmin):
-    #form = ResultSNPForm
     readonly_fields = ('patient_sample', 'test', 'rs')
 
     list_display = ('patient_sample', 
@@ -35,10 +34,9 @@ class ResultSNPAdmin(admin.ModelAdmin):
     def has_add_permission(self, request, obj=None):
         return False
 
+   
 
 class ReportRuleTwoSNPAdmin(admin.ModelAdmin):
-    filter_horizontal = ('tests',)
-    list_display = ('name', 'note', 'snp_1', 'snp_2', )
     form = ReportRuleForm
 
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
@@ -49,9 +47,11 @@ class ReportRuleTwoSNPAdmin(admin.ModelAdmin):
         return super().formfield_for_foreignkey(db_field, request, **kwargs)
 
 
+
 class ReportCombinationsAdmin(admin.ModelAdmin):
     list_display = ('report_rule_two_snp', 'tests', 'genotype_snp_1', 'genotype_snp_2', 'report', )
     list_filter = ('report_rule_two_snp',)
+    readonly_fields = ('report_rule_two_snp', 'genotype_snp_1', 'genotype_snp_2', )
 
     def tests(self, obj):
         return ', '.join([kit.name for kit in obj.report_rule_two_snp.tests.all()])
@@ -59,14 +59,9 @@ class ReportCombinationsAdmin(admin.ModelAdmin):
     def has_add_permission(self, request, obj=None):
         return False
     
-    # пока в объекте report_rule_two_snp строки, а не ссылки на объекты
-    # попробовать после, когда может быть будут ссылки на сами объекты
-    """
-    def snp_1(self, obj):
-        rs_snp_1 = obj.report_rule_two_snp.snp_1
-    """
 
 class ConclusionSNPAdmin(admin.ModelAdmin):
+    readonly_fields = ('test', 'patient')
     search_fields = ('patient',)
     search_help_text = 'search by patient. case sensitive. use "Иванов", not "иванов"'
 
