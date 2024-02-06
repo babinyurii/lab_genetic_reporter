@@ -27,7 +27,7 @@ class ResultSNPAdmin(admin.ModelAdmin):
                     'rs', 
                     'result',
                     'date_modified',)
-    search_fields = ('patient_sample__last_name', 'rs',  )
+    search_fields = ('patient_sample__last_name', 'rs__rs',  )
     search_help_text = 'Search by last name or rs. Case sensitive. f.e. use "Иванов", not "иванов"'
     list_filter = ('test', )
 

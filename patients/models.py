@@ -58,14 +58,14 @@ class PatientSampleDetectionKit(models.Model):
 
         for marker in kit_markers:
             if not ResultSNP.objects.filter(
-                rs=marker.rs, 
+                rs=marker.pk, 
                 test=self.test.pk, 
                 patient_sample=self.patient_sample.pk).exists():
                 
                 ResultSNP.objects.create(
                     patient_sample=self.patient_sample,
                     test=self.test,
-                    rs=marker.rs,
+                    rs=marker,
                     result=None
                 )
 
@@ -83,7 +83,7 @@ class ResultSNP(models.Model):
 
     patient_sample = models.ForeignKey(PatientSample, on_delete=models.CASCADE)
     test = models.ForeignKey(DetectionKit, on_delete=models.CASCADE)
-    rs = models.CharField(max_length=20, validators=[check_if_rs_exists,])
+    rs = models.ForeignKey(SingleNucPol, on_delete=models.CASCADE)
     result = models.CharField(max_length=2, blank=True, null=True, help_text='use only English characters for result')
     #result = models.CharField(max_length=2, choices=cls.get_nuc_vars(), verbose_name='result')
     
@@ -96,7 +96,7 @@ class ResultSNP(models.Model):
         verbose_name_plural = 'SNP results'
 
     def __str__(self):
-        return f'{self.patient_sample}. SNP: {self.rs}. result: {self.result}'
+        return f'patient:  {self.patient_sample}.  SNP:  {self.rs}.  result: {self.result}'
 
 
     def get_nuc_vars(self):
