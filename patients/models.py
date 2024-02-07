@@ -163,7 +163,7 @@ class ReportRuleTwoSNP(models.Model):
         return f'report rule: {self.name}'
 
     def detection_kits(self):
-        return "\n".join([p.name for p in self.tests.all()])
+        return "\n".join([kit.name for kit in self.tests.all()])
 
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
