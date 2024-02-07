@@ -7,9 +7,11 @@ from markers.models import SingleNucPol
 from django.core.exceptions import ValidationError
 
 
+
 def check_if_rs_exists(value):
     if not SingleNucPol.objects.filter(rs=value).exists():
         raise ValidationError('this rs id does not exist in the database. please, check "MARKERS" application.')
+
 
 
 class PatientSample(models.Model):
@@ -78,6 +80,7 @@ class PatientSampleDetectionKit(models.Model):
         constraints = [models.UniqueConstraint(fields=['patient_sample', 'test', ], name='patient_and_test_unique_constraint')]
 
 
+
 class ResultSNP(models.Model):
 
 
@@ -119,8 +122,7 @@ class ResultSNP(models.Model):
                 )
                 for rule in rules:
                     combs = ReportCombinations.objects.filter(
-                        report_rule_two_snp=rule
-                    )
+                        report_rule_two_snp=rule).order_by('order_for_conclusion')
                     snp_1_rs = rule.snp_1
                     snp_2_rs = rule.snp_2
                     snp_1_result = results_snp.get(rs=snp_1_rs).result
@@ -145,6 +147,8 @@ class ResultSNP(models.Model):
             raise ValidationError('genotype is not correct')
 
 
+def get_order_for_conclusion():
+    return [(i, i) for i in range(1, 10)]
 
 
 class ReportRuleTwoSNP(models.Model):
@@ -153,9 +157,13 @@ class ReportRuleTwoSNP(models.Model):
     snp_1 = models.ForeignKey(SingleNucPol, on_delete=models.CASCADE, related_name='report_rules_snp_1')
     snp_2 = models.ForeignKey(SingleNucPol, on_delete=models.CASCADE, related_name='report_rules_snp_2')
     note = models.TextField(max_length=1000)
+    order_in_conclusion = models.IntegerField(default=1, choices=get_order_for_conclusion)
 
     def __str__(self):
-        return self.name
+        return f'report rule: {self.name}'
+
+    def detection_kits(self):
+        return "\n".join([p.name for p in self.tests.all()])
 
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
@@ -181,12 +189,14 @@ class ReportRuleTwoSNP(models.Model):
 
 
 
+
+
 class ReportCombinations(models.Model): # TODO rename to combinations 2 snp. first check if it's neede really
     report_rule_two_snp = models.ForeignKey(ReportRuleTwoSNP, on_delete=models.CASCADE)
     genotype_snp_1 = models.CharField(max_length=2, blank=True, null=True)
     genotype_snp_2 = models.CharField(max_length=2, blank=True, null=True)
     report = models.TextField(max_length=1000, blank=True, null=True)
-
+   
     class Meta:
         verbose_name = 'report rules: conclusions for genotype combinations'
         verbose_name_plural = 'report rules: conclusions for genotype combinations'
@@ -194,6 +204,8 @@ class ReportCombinations(models.Model): # TODO rename to combinations 2 snp. fir
     def __str__(self):
         return self.report_rule_two_snp.name
 
+    def clean(self):
+        pass
 
 class ConclusionSNP(models.Model):
     patient = models.ForeignKey(PatientSample, on_delete=models.CASCADE)
