@@ -38,8 +38,8 @@ class ResultSNPAdmin(admin.ModelAdmin):
 
 class ReportRuleTwoSNPAdmin(admin.ModelAdmin):
     form = ReportRuleForm
-    list_display = ('name', 'detection_kits', 'snp_1', 'snp_2', 'order_in_conclusion')
-    readonly_fields = ('detection_kits',)
+    list_display = ('name', 'detection_kits', 'snp_1', 'snp_2', 'order_in_conclusion',)
+    #readonly_fields = ('detection_kits',)
     
 
     def formfield_for_foreignkey(self, db_field, request, **kwargs):

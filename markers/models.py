@@ -25,10 +25,10 @@ class SingleNucPol(models.Model):
     nuc_var_2 = models.CharField(max_length=1, choices=NUC_CHOICES, verbose_name='allele 2')
     nuc_var_1_freq = models.FloatField(blank=True, null=True, verbose_name='allele 1 frequency (from dbSNP)',
                                         help_text='floating point number. f.e.: 0.5',
-                                        validators=[MinValueValidator(0), MaxValueValidator(1) ])
+                                        validators=[MinValueValidator(0), MaxValueValidator(1),])
     nuc_var_2_freq = models.FloatField(blank=True, null=True, verbose_name='allele 2 frequency (from dbSNP)',
                                         help_text='floating point number. f.e.: 0.5',
-                                        validators=[MinValueValidator(0), MaxValueValidator(1) ])
+                                        validators=[MinValueValidator(0), MaxValueValidator(1),])
     db_snp_link = models.URLField(max_length=255, blank=True, null=True, unique=True, verbose_name='dbSNP link',
                                     validators=[URLValidator, ])
     date_created = models.DateTimeField(auto_now_add=True, editable=False)

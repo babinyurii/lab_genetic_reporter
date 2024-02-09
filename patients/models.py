@@ -1,7 +1,7 @@
 from django.db import models
 from users.models import CustomUser
 from detection_kits.models import DetectionKit
-from datetime import datetime
+from datetime import datetime, date
 from django.core.validators import MinValueValidator, MaxValueValidator
 from markers.models import SingleNucPol
 from django.core.exceptions import ValidationError
@@ -17,7 +17,7 @@ class PatientSample(models.Model):
     first_name = models.CharField(max_length=255)
     last_name = models.CharField(max_length=255)
     middle_name = models.CharField(max_length=255, blank=True, null=True)
-    age = models.PositiveIntegerField()
+    age = models.PositiveIntegerField(validators=[MinValueValidator(0), MaxValueValidator(122)])
     clinic_id = models.CharField(max_length=255, blank=True, null=True)
     lab_id = models.CharField(max_length=255, unique=True)
     date_sampled = models.DateField(blank=True, null=True)
@@ -37,11 +37,17 @@ class PatientSample(models.Model):
     class Meta:
         verbose_name = 'Sample'
         verbose_name_plural = 'Samples'
-   
+
+    def clean(self):
+        if self.date_sampled > date.today():
+            raise ValidationError(f'sample can not be sampled in the future. date sampled: {self.date_sampled} ')
+        if self.date_delivered > date.today():
+            raise ValidationError(f'sample can not be delivered in the future. date delivered: {self.date_delivered} ')
+       
 
 
 class PatientSampleDetectionKit(models.Model):
-    patient_sample = models.ForeignKey(PatientSample, on_delete=models.PROTECT,)
+    patient_sample = models.ForeignKey(PatientSample, on_delete=models.PROTECT)
     test = models.ForeignKey(DetectionKit, on_delete=models.PROTECT)
     date_created = models.DateTimeField(auto_now_add=True)
 
@@ -95,14 +101,14 @@ class ResultSNP(models.Model):
         super().save(*args, **kwargs)
         
         # not created automatically after patient creation
-        if update_obj: # look for conclusion creation only when snp results are updated,   
+        if update_obj: 
             results_snp = ResultSNP.objects.filter(
                 test=self.test,
                 patient_sample=self.patient_sample)
 
             results = [obj.result for obj in results_snp]
 
-            if all(results):
+            if all(results): # look for conclusion creation only when snp results are updated,   
                 text = ''
                 test = self.test
                 rules = ReportRuleTwoSNP.objects.filter(
@@ -133,6 +139,8 @@ class ResultSNP(models.Model):
                     self.rs.nuc_var_1 + self.rs.nuc_var_2, self.rs.nuc_var_2 + self.rs.nuc_var_1]
         if self.result not in nuc_vars:
             raise ValidationError('genotype is not correct')
+        return join(sorted(self.result))
+        
 
 
 
@@ -175,6 +183,9 @@ class ReportRuleTwoSNP(models.Model):
                     snp_2.nuc_var_1 + snp_2.nuc_var_2,
                     snp_2.nuc_var_2 + snp_2.nuc_var_2]
 
+        genotypes_snp_1 = [''.join(sorted(genotype)) for genotype in genotypes_snp_1]
+        genotypes_snp_2 = [''.join(sorted(genotype)) for genotype in genotypes_snp_2]
+
         for genotype_snp_1 in genotypes_snp_1:
             for genotype_snp_2 in genotypes_snp_2:
                 if not ReportCombinations.objects.filter(
@@ -184,7 +195,8 @@ class ReportRuleTwoSNP(models.Model):
                     ReportCombinations.objects.create(
                             report_rule_two_snp=self,
                             genotype_snp_1=genotype_snp_1,
-                            genotype_snp_2=genotype_snp_2)
+                            genotype_snp_2=genotype_snp_2
+                            )
 
 
 class ReportCombinations(models.Model): # TODO rename to combinations 2 snp. first check if it's neede really
