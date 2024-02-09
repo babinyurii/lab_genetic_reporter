@@ -140,7 +140,7 @@ class ResultSNP(models.Model):
                     self.rs.nuc_var_1 + self.rs.nuc_var_2, self.rs.nuc_var_2 + self.rs.nuc_var_1]
         if self.result not in nuc_vars:
             raise ValidationError('genotype is not correct')
-        return ''.join(sorted(self.result))
+        return ''.join(sorted(self.result)) # TODO вынести в форму. на уровне формы сортировать результаты
         
 
 
