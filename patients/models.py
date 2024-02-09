@@ -113,10 +113,11 @@ class ResultSNP(models.Model):
                 test = self.test
                 rules = ReportRuleTwoSNP.objects.filter(
                     tests=self.test
-                )
+                ).order_by('order_in_conclusion')
+                
                 for rule in rules:
                     combs = ReportCombinations.objects.filter(
-                        report_rule_two_snp=rule).order_by('order_for_conclusion')
+                        report_rule_two_snp=rule)
                     snp_1_rs = rule.snp_1
                     snp_2_rs = rule.snp_2
                     snp_1_result = results_snp.get(rs=snp_1_rs).result
@@ -139,7 +140,7 @@ class ResultSNP(models.Model):
                     self.rs.nuc_var_1 + self.rs.nuc_var_2, self.rs.nuc_var_2 + self.rs.nuc_var_1]
         if self.result not in nuc_vars:
             raise ValidationError('genotype is not correct')
-        return join(sorted(self.result))
+        return ''.join(sorted(self.result))
         
 
 
@@ -197,6 +198,7 @@ class ReportRuleTwoSNP(models.Model):
                             genotype_snp_1=genotype_snp_1,
                             genotype_snp_2=genotype_snp_2
                             )
+
 
 
 class ReportCombinations(models.Model): # TODO rename to combinations 2 snp. first check if it's neede really

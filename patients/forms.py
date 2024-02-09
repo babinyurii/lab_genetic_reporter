@@ -8,7 +8,7 @@ class ReportRuleForm(forms.ModelForm):
 
     class Meta:
         model = ReportRuleTwoSNP
-        fields = ('name', 'snp_1', 'snp_2', 'order_in_conclusion')
+        fields = ('name', 'snp_1', 'snp_2', 'order_in_conclusion', 'tests')
         widgets = {
             'tests': forms.CheckboxSelectMultiple(),
         }
@@ -25,7 +25,11 @@ class ReportRuleForm(forms.ModelForm):
 
         if snp_1 == snp_2:
             raise ValidationError(f'field snp_1 {snp_1} and field snp_2 {snp_2} are the same. Choose different markers')
+
+        if not kits:
+            raise ValidationError('choose kit')
         for kit in kits:
+
             if ReportRuleTwoSNP.objects.filter(snp_1=snp_1, snp_2=snp_2, tests=kit, order_in_conclusion=order_in_conclusion).exists() or \
                 ReportRuleTwoSNP.objects.filter(snp_1=snp_2, snp_2=snp_1, tests=kit, order_in_conclusion=order_in_conclusion).exists():
                 raise ValidationError(f'the database already has the record with "{kit}", "{snp_1}", "{snp_2}", and order: "{order_in_conclusion}"')
