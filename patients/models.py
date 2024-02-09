@@ -7,7 +7,6 @@ from markers.models import SingleNucPol
 from django.core.exceptions import ValidationError
 
 
-
 def check_if_rs_exists(value):
     if not SingleNucPol.objects.filter(rs=value).exists():
         raise ValidationError('this rs id does not exist in the database. please, check "MARKERS" application.')
@@ -31,19 +30,15 @@ class PatientSample(models.Model):
     tests = models.ManyToManyField(DetectionKit, through='PatientSampleDetectionKit')
     date_created = models.DateTimeField(auto_now_add=True, editable=False)
     date_modified = models.DateTimeField(auto_now=True)
-    
-
 
     def __str__(self):
         return f'{self.last_name} {self.first_name}'
 
-
     class Meta:
         verbose_name = 'Sample'
         verbose_name_plural = 'Samples'
-    
+   
 
-        
 
 class PatientSampleDetectionKit(models.Model):
     patient_sample = models.ForeignKey(PatientSample, on_delete=models.PROTECT,)
@@ -52,10 +47,8 @@ class PatientSampleDetectionKit(models.Model):
 
 
     def save(self, *args, **kwargs):
-        
         super().save(*args, **kwargs)
         record_pk = self.pk
-
         kit_markers = self.test.markers.all()
 
         for marker in kit_markers:
@@ -68,8 +61,7 @@ class PatientSampleDetectionKit(models.Model):
                     patient_sample=self.patient_sample,
                     test=self.test,
                     rs=marker,
-                    result=None
-                )
+                    result=None)
 
     def __str__(self):
         return f'{self.test}'
@@ -80,17 +72,13 @@ class PatientSampleDetectionKit(models.Model):
         constraints = [models.UniqueConstraint(fields=['patient_sample', 'test', ], name='patient_and_test_unique_constraint')]
 
 
-
 class ResultSNP(models.Model):
-
-
     patient_sample = models.ForeignKey(PatientSample, on_delete=models.CASCADE)
     test = models.ForeignKey(DetectionKit, on_delete=models.CASCADE)
     rs = models.ForeignKey(SingleNucPol, on_delete=models.CASCADE)
     result = models.CharField(max_length=2, blank=True, null=True, help_text='use only English characters for result')    
     date_created = models.DateTimeField(auto_now_add=True, editable=False)
     date_modified = models.DateTimeField(auto_now=True)
-    
 
     class Meta:
         verbose_name = 'SNP result'
@@ -105,9 +93,9 @@ class ResultSNP(models.Model):
             update_obj = True
         
         super().save(*args, **kwargs)
-
-        if update_obj: # look for conclusion creation only when snp results are updated,
-            # not created automatically after patient creation
+        
+        # not created automatically after patient creation
+        if update_obj: # look for conclusion creation only when snp results are updated,   
             results_snp = ResultSNP.objects.filter(
                 test=self.test,
                 patient_sample=self.patient_sample)
@@ -147,17 +135,28 @@ class ResultSNP(models.Model):
             raise ValidationError('genotype is not correct')
 
 
-def get_order_for_conclusion():
-    return [(i, i) for i in range(1, 10)]
-
 
 class ReportRuleTwoSNP(models.Model):
+    ORDER_FOR_CONCLUSION = (
+        (1, 1),
+        (2, 2),
+        (3, 3),
+        (4, 4),
+        (5, 5),
+        (6, 6),
+        (7, 7),
+        (8, 8),
+        (9, 9),
+    )
+
+
+
     name = models.CharField(max_length=255, unique=True)
     tests = models.ManyToManyField(DetectionKit, related_name='report_rules')
     snp_1 = models.ForeignKey(SingleNucPol, on_delete=models.CASCADE, related_name='report_rules_snp_1')
     snp_2 = models.ForeignKey(SingleNucPol, on_delete=models.CASCADE, related_name='report_rules_snp_2')
     note = models.TextField(max_length=1000)
-    order_in_conclusion = models.IntegerField(default=1, choices=get_order_for_conclusion)
+    order_in_conclusion = models.IntegerField(default=1, choices=ORDER_FOR_CONCLUSION)
 
     def __str__(self):
         return f'report rule: {self.name}'
@@ -188,9 +187,6 @@ class ReportRuleTwoSNP(models.Model):
                             genotype_snp_2=genotype_snp_2)
 
 
-
-
-
 class ReportCombinations(models.Model): # TODO rename to combinations 2 snp. first check if it's neede really
     report_rule_two_snp = models.ForeignKey(ReportRuleTwoSNP, on_delete=models.CASCADE)
     genotype_snp_1 = models.CharField(max_length=2, blank=True, null=True)
@@ -206,6 +202,7 @@ class ReportCombinations(models.Model): # TODO rename to combinations 2 snp. fir
 
     def clean(self):
         pass
+
 
 class ConclusionSNP(models.Model):
     patient = models.ForeignKey(PatientSample, on_delete=models.CASCADE)

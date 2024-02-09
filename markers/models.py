@@ -2,6 +2,8 @@ from django.db import models
 from django.core.exceptions import ValidationError
 from django.core.validators import URLValidator
 from django.utils.timezone import now
+from users.models import CustomUser
+
 
 def validate_rs(value):
     if not value.startswith('rs'):
@@ -25,7 +27,7 @@ class SingleNucPol(models.Model):
         (THYMINE, 'T'),
     )
     
-    rs = models.CharField(max_length=20, verbose_name='Rs id', unique=True, validators=[validate_rs, ])
+    rs = models.CharField(max_length=20, verbose_name='rs id', unique=True, validators=[validate_rs, ])
     gene_name_short = models.CharField(max_length=20, verbose_name='short gene name')
     gene_name_full = models.CharField(max_length=255, blank=True, null=True, verbose_name='full gene name')
     nuc_var_1 = models.CharField(max_length=1, choices=NUC_CHOICES, verbose_name='allele 1')
@@ -40,7 +42,6 @@ class SingleNucPol(models.Model):
                                     validators=[URLValidator, ])
     date_created = models.DateTimeField(auto_now_add=True, editable=False)
     date_modified = models.DateTimeField(auto_now=True)
-    
 
 
     def clean(self):
