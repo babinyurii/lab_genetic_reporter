@@ -20,7 +20,7 @@ class PatientSample(models.Model):
     age = models.PositiveIntegerField(validators=[MinValueValidator(0), MaxValueValidator(122)])
     clinic_id = models.CharField(max_length=255, blank=True, null=True)
     lab_id = models.CharField(max_length=255, unique=True)
-    date_sampled = models.DateField(blank=True, null=True)
+    date_sampled = models.DateField() # TODO migrate
     date_delivered = models.DateField()
     dna_concentration = models.PositiveIntegerField(validators=[MinValueValidator(0)])
     dna_quality_260_280 = models.FloatField(validators=[MinValueValidator(0.0), MaxValueValidator(3.0)])
@@ -126,6 +126,8 @@ class ResultSNP(models.Model):
                    
                     conclusion_for_result = combs.get(genotype_snp_1=snp_1_result,
                                                               genotype_snp_2=snp_2_result)
+                    # TODO catch
+                    print('conclusiion: ', conclusion_for_result.report, flush=True)
                     text += conclusion_for_result.report
 
                 if not ConclusionSNP.objects.filter(patient=self.patient_sample, test=self.test).exists():
