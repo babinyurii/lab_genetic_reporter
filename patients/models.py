@@ -79,6 +79,7 @@ class PatientSampleDetectionKit(models.Model):
 
 
 class ResultSNP(models.Model):
+
     patient_sample = models.ForeignKey(PatientSample, on_delete=models.CASCADE)
     test = models.ForeignKey(DetectionKit, on_delete=models.CASCADE)
     rs = models.ForeignKey(SingleNucPol, on_delete=models.CASCADE)
@@ -137,10 +138,10 @@ class ResultSNP(models.Model):
 
     def clean(self):
         nuc_vars = [self.rs.nuc_var_1 + self.rs.nuc_var_1, self.rs.nuc_var_2 + self.rs.nuc_var_2,
-                    self.rs.nuc_var_1 + self.rs.nuc_var_2, self.rs.nuc_var_2 + self.rs.nuc_var_1]
+                    self.rs.nuc_var_1 + self.rs.nuc_var_2,] # self.rs.nuc_var_2 + self.rs.nuc_var_1]
         if self.result not in nuc_vars:
-            raise ValidationError('genotype is not correct')
-        return ''.join(sorted(self.result)) # TODO вынести в форму. на уровне формы сортировать результаты
+            raise ValidationError('genotype is not correct. check: only uppercase letter, look at the order of nucleotides above')
+        #return ''.join(sorted(self.result)) # TODO вынести в форму. на уровне формы сортировать результаты
         
 
 
@@ -184,8 +185,8 @@ class ReportRuleTwoSNP(models.Model):
                     snp_2.nuc_var_1 + snp_2.nuc_var_2,
                     snp_2.nuc_var_2 + snp_2.nuc_var_2]
 
-        genotypes_snp_1 = [''.join(sorted(genotype)) for genotype in genotypes_snp_1]
-        genotypes_snp_2 = [''.join(sorted(genotype)) for genotype in genotypes_snp_2]
+        #genotypes_snp_1 = [''.join(sorted(genotype)) for genotype in genotypes_snp_1]
+        #genotypes_snp_2 = [''.join(sorted(genotype)) for genotype in genotypes_snp_2]
 
         for genotype_snp_1 in genotypes_snp_1:
             for genotype_snp_2 in genotypes_snp_2:
