@@ -10,19 +10,27 @@ class SingleNucPol(models.Model):
     CYTOSINE = 'C'
     GUANINE = 'G'
     THYMINE = 'T'
+    MMP3_al_1 = '5A'
+    MMP3_al_2 = '6A'
+    MMP1_al_1 = '1G'
+    MMP1_al_2 = '2G'
 
     NUC_CHOICES = (
         (ADENINE, 'A'),
         (CYTOSINE, 'C'),
         (GUANINE, 'G'),
         (THYMINE, 'T'),
+        (MMP3_al_1, '5A'),
+        (MMP3_al_2, '6A'),
+        (MMP1_al_1, '1G'),
+        (MMP1_al_2, '2G'),
     )
     
     rs = models.CharField(max_length=20, verbose_name='rs id', unique=True)
     gene_name_short = models.CharField(max_length=20, verbose_name='short gene name')
     gene_name_full = models.CharField(max_length=255, blank=True, null=True, verbose_name='full gene name')
-    nuc_var_1 = models.CharField(max_length=1, choices=NUC_CHOICES, verbose_name='allele 1')
-    nuc_var_2 = models.CharField(max_length=1, choices=NUC_CHOICES, verbose_name='allele 2')
+    nuc_var_1 = models.CharField(max_length=2, choices=NUC_CHOICES, verbose_name='allele 1')
+    nuc_var_2 = models.CharField(max_length=2, choices=NUC_CHOICES, verbose_name='allele 2')
     nuc_var_1_freq = models.FloatField(blank=True, null=True, verbose_name='allele 1 frequency (from dbSNP)',
                                         help_text='floating point number. f.e.: 0.5',
                                         validators=[MinValueValidator(0), MaxValueValidator(1),])
