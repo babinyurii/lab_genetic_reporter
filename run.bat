@@ -35,4 +35,3 @@ if defined _OLD_CODEPAGE (
 )
 
 .\manage.py runserver
-@echo off

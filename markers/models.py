@@ -12,8 +12,8 @@ class SingleNucPol(models.Model):
     THYMINE = 'T'
     MMP3_al_1 = '5A'
     MMP3_al_2 = '6A'
-    MMP1_al_1 = '1G'
-    MMP1_al_2 = '2G'
+    MMP1_al_1 = '1G' # уточнить
+    MMP1_al_2 = '2G' # уточнить
 
     NUC_CHOICES = (
         (ADENINE, 'A'),

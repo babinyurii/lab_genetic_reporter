@@ -54,8 +54,8 @@ class TestPatientAppModels(TestCase):
 
         cls.report_rule = ReportRuleTwoSNP.objects.create(
             name='COL1 and MMP1 report rule',
-            snp_1='rs1',
-            snp_2='rs2',
+            snp_1=cls.snp_1,
+            snp_2=cls.snp_2,
             note='test rule'
         )
 
@@ -103,15 +103,15 @@ class TestPatientAppModels(TestCase):
         for record in result_records:
             self.assertEqual(record.test, self.detection_kit)
             self.assertEqual(record.patient_sample, self.patient)
-            self.assertIn(record.rs, rs_ids)
+            self.assertIn(record.rs.rs, rs_ids)
             rs_from_results_table.append(record.rs)
         self.assertEqual(len(rs_ids), len(rs_from_results_table))
       
 
     def test_reportruletwosnp_model(self):
         self.assertEqual(self.report_rule.name, 'COL1 and MMP1 report rule')
-        self.assertEqual(self.report_rule.snp_1, 'rs1')
-        self.assertEqual(self.report_rule.snp_2, 'rs2')
+        self.assertEqual(self.report_rule.snp_1.rs, 'rs1')
+        self.assertEqual(self.report_rule.snp_2.rs, 'rs2')
         self.assertEqual(self.report_rule.note, 'test rule')
 
 
@@ -141,7 +141,7 @@ class TestPatientAppModels(TestCase):
     def test_conclusionmodel(self):
         snps = SingleNucPol.objects.all()
         for snp in snps:
-            result = ResultSNP.objects.get(rs=snp.rs) 
+            result = ResultSNP.objects.get(rs=snp) 
             result.result = f'{snp.nuc_var_1}{snp.nuc_var_1}' # all 'major' homozygous
             result.save()
         
@@ -151,7 +151,7 @@ class TestPatientAppModels(TestCase):
 
 
         for snp in snps:
-            result = ResultSNP.objects.get(rs=snp.rs) 
+            result = ResultSNP.objects.get(rs=snp) 
             result.result = f'{snp.nuc_var_1}{snp.nuc_var_2}' # all heterozygous
             result.save()
         
@@ -161,7 +161,7 @@ class TestPatientAppModels(TestCase):
 
 
         for snp in snps:
-            result = ResultSNP.objects.get(rs=snp.rs) 
+            result = ResultSNP.objects.get(rs=snp) 
             result.result = f'{snp.nuc_var_2}{snp.nuc_var_2}' # all 'minor' homozygous
             result.save()
         
