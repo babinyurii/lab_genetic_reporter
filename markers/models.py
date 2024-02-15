@@ -36,7 +36,7 @@ class SingleNucPol(models.Model):
                                         help_text='floating point number. f.e.: 0.5',
                                         validators=[MinValueValidator(0), MaxValueValidator(1),])
     db_snp_link = models.URLField(max_length=255, blank=True, null=True, unique=True, verbose_name='dbSNP link',
-                                    validators=[URLValidator, ])
+                                    validators=[URLValidator, ], help_text='==== LINK WILL BE OPENED IN THE SAME TAB! BE CAREFUL ====')
     date_created = models.DateTimeField(auto_now_add=True, editable=False)
     date_modified = models.DateTimeField(auto_now=True)
 
