@@ -210,7 +210,7 @@ class ReportCombinations(models.Model): # TODO rename to combinations 2 snp. fir
     report_rule_two_snp = models.ForeignKey(ReportRuleTwoSNP, on_delete=models.CASCADE)
     genotype_snp_1 = models.CharField(max_length=2, blank=True, null=True)
     genotype_snp_2 = models.CharField(max_length=2, blank=True, null=True)
-    report = models.TextField(max_length=1000, blank=True, null=True)
+    report = models.TextField(max_length=10000, blank=True, null=True)
    
     class Meta:
         verbose_name = 'report rules: conclusions for genotype combinations'
@@ -226,7 +226,7 @@ class ReportCombinations(models.Model): # TODO rename to combinations 2 snp. fir
 class ConclusionSNP(models.Model):
     patient = models.ForeignKey(PatientSample, on_delete=models.CASCADE)
     test = models.ForeignKey(DetectionKit, on_delete=models.CASCADE)
-    conclusion = models.TextField(max_length=5000)
+    conclusion = models.TextField(max_length=20000)
     date_created = models.DateTimeField(auto_now_add=True, editable=False)
     date_modified = models.DateTimeField(auto_now=True)
     
