@@ -40,9 +40,11 @@ class PatientSample(models.Model):
 
     def clean(self):
         if self.date_sampled > date.today():
-            raise ValidationError(f'sample can not be sampled in the future. date sampled: {self.date_sampled} ')
+            raise ValidationError(f'check sampling date: sample can not be sampled in the future. date sampled: {self.date_sampled} ')
         if self.date_delivered > date.today():
-            raise ValidationError(f'sample can not be delivered in the future. date delivered: {self.date_delivered} ')
+            raise ValidationError(f'check delivery date: sample can not be delivered in the future. date delivered: {self.date_delivered} ')
+        if self.date_sampled > self.date_delivered:
+            raise ValidationError(f'check sampling date: sample can not be sampled after delivery date')
        
 
 
