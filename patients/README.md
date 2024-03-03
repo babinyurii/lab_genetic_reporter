@@ -1,0 +1,1 @@
+our in-house Django-based tool to register genetic samples and make automatic conclusions for genetic reports
