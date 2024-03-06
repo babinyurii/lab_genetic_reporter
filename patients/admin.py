@@ -16,6 +16,8 @@ class PatientSampleAdmin(admin.ModelAdmin):
     'dna_concentration', 'dna_quality_260_280', 'dna_quality_260_230', 'notes', )
     list_display_links = ('lab_id', )
     inlines = (PatientSampleDetectionKitInline, )
+    search_fields = ('lab_id', 'last_name', )
+    search_help_text = 'Search by lab_id or last name. Case sensitive. f.e. use "Иванов", not "иванов"'
 
 
 class ResultSNPAdmin(admin.ModelAdmin):
