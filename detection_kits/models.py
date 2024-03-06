@@ -31,6 +31,10 @@ class DetectionKitMarkers(models.Model):
     detection_kit = models.ForeignKey(DetectionKit, null=True, on_delete=models.SET_NULL)
     marker = models.ForeignKey(SingleNucPol, null=True, on_delete=models.SET_NULL)
 
+    class Meta:
+        constraints = [models.UniqueConstraint(fields=['detection_kit', 'marker', ], 
+                        name='detection_kit_marker_constraint')]
+
     
 
     
