@@ -5,6 +5,7 @@ from datetime import datetime, date
 from django.core.validators import MinValueValidator, MaxValueValidator
 from markers.models import SingleNucPol
 from django.core.exceptions import ValidationError
+from django.core.exceptions import ObjectDoesNotExist
 
 
 def check_if_rs_exists(value):
@@ -118,6 +119,9 @@ class ResultSNP(models.Model):
                     tests=self.test
                 ).order_by('order_in_conclusion')
                 
+                #for rule in rules: # !!!!!! save to update the nucs in combinations, if marker was changed
+                #    rule.save()
+
                 for rule in rules:
                     combs = ReportCombinations.objects.filter(
                         report_rule_two_snp=rule)
@@ -125,9 +129,13 @@ class ResultSNP(models.Model):
                     snp_2_rs = rule.snp_2
                     snp_1_result = results_snp.get(rs=snp_1_rs).result
                     snp_2_result = results_snp.get(rs=snp_2_rs).result
-                   
-                    conclusion_for_result = combs.get(genotype_snp_1=snp_1_result,
+                    
+                    try:
+                        conclusion_for_result = combs.get(genotype_snp_1=snp_1_result,
                                                               genotype_snp_2=snp_2_result)
+                    except ObjectDoesNotExist:
+                        #print('seems like genotypes in results are not correct')
+                        raise ValidationError('seems like genotypes in results are not correct')
                     # TODO catch
                     #print('conclusiion: ', conclusion_for_result.report, flush=True)
                     text += conclusion_for_result.report
@@ -192,24 +200,22 @@ class ReportRuleTwoSNP(models.Model):
         #genotypes_snp_1 = [''.join(sorted(genotype)) for genotype in genotypes_snp_1]
         #genotypes_snp_2 = [''.join(sorted(genotype)) for genotype in genotypes_snp_2]
 
+        genotypes_combs_in_list = []
+        for genotype_snp_1 in genotypes_snp_1:
+            for genotype_snp_2 in genotypes_snp_2: # TODO issue 7
+                genotypes_combs_in_list.append((genotype_snp_1, genotype_snp_2))
+
         
-        report_combinations = ReportCombinations.objects.filter(report_rule_two_snp=self)       
+        report_combinations = ReportCombinations.objects.filter(report_rule_two_snp=self).order_by('pk')  
+        print('report combs ordered by pk: ', report_combinations, flush=True)  
+
         if report_combinations:
-            # здесь нужно как-то продумать так:
-            # нельзя удалять полностью записи, так как там есть данные для репорта
-            # нужно только подменить измененные данные генотипов для первого и второго 
-            # снипа. только пока не ясно, как это сделать правильно и не запутаться
-            # потому что перебором мы можем вставить не те генотипы - и заключение потеряет смысл
-            # возможно, нужно как-то добавить скрытое поле - например тоже внешний ключ на маркер, 
-            # и как-то по нему искать
+            comb_counter = 0
             for report_comb in report_combinations:
-                for genotype_snp_1 in genotypes_snp_1:
-                    for genotype_snp_2 in genotypes_snp_2: # TODO issue 7
-    
-                        report_comb.genotype_snp_1 = genotypes_snp_1
-                        
-                        report_comb.genotype_snp_2 = genotypes_snp_2
-                        report_comb.save()
+                report_comb.genotype_snp_1 = genotypes_combs_in_list[comb_counter][0]
+                report_comb.genotype_snp_2 = genotypes_combs_in_list[comb_counter][1]
+                report_comb.save()
+                comb_counter += 1
         else:
             for genotype_snp_1 in genotypes_snp_1:
                 for genotype_snp_2 in genotypes_snp_2: # TODO issue 7

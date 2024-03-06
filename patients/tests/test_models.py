@@ -193,13 +193,19 @@ class TestPatientAppModels(TestCase):
 
 
         report_rule.save() # !!!! shift to the marker???
-        report_combs = ReportCombinations.objects.filter(report_rule_two_snp=report_rule.pk)
+        report_combs = ReportCombinations.objects.filter(report_rule_two_snp=report_rule.pk).order_by('pk')
         print('AFTER saving ReportRule')
         for report_comb in report_combs:
             print('comb genotype 1: ', report_comb.genotype_snp_1)
 
 
         self.assertEqual(len(report_combs), 9)
+
+        updated_genotypes = ['GG', 'GG', 'GG', 'GC', 'GC', 'GC', 'CC', 'CC', 'CC', ]
+        counter = 0
+        for report_comb in report_combs:
+            self.assertEqual(report_comb.genotype_snp_1, updated_genotypes[counter])
+            counter += 1
         
 
 
