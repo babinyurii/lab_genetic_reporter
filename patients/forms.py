@@ -37,7 +37,7 @@ class ReportRuleForm(forms.ModelForm):
                     raise ValidationError(f'the database already has the record with the kit:  "{kit}",  snp 1:  "{snp_1}",  snp 2:  "{snp_2}"')
 
             for snp in snps:
-                if not kit.markers.filter(rs=snp.rs).exists():
+                if not kit.linked_markers.filter(rs=snp.rs).exists():
                     raise ValidationError(f'snp : "{snp}" is not in the kit: "{kit}"')
         
         return data
