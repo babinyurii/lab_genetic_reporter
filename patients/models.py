@@ -141,6 +141,7 @@ class ResultSNP(models.Model):
                     # TODO catch
                     #print('conclusiion: ', conclusion_for_result.report, flush=True)
                     text += conclusion_for_result.report
+                    text += '\n'
 
                 if not ConclusionSNP.objects.filter(patient=self.patient_sample, test=self.test).exists():
                     ConclusionSNP.objects.create(patient=self.patient_sample,
