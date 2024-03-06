@@ -6,6 +6,7 @@ from django.core.validators import MinValueValidator, MaxValueValidator
 from markers.models import SingleNucPol
 from django.core.exceptions import ValidationError
 from django.core.exceptions import ObjectDoesNotExist
+import string  
 
 
 def check_if_rs_exists(value):
@@ -21,15 +22,15 @@ class PatientSample(models.Model):
     age = models.PositiveIntegerField(validators=[MinValueValidator(0), MaxValueValidator(122)])
     clinic_id = models.CharField(max_length=255, blank=True, null=True)
     lab_id = models.CharField(max_length=255, unique=True)
-    date_sampled = models.DateField() # TODO migrate
-    date_delivered = models.DateField()
+    date_sampled = models.DateField(help_text='USE CALENDAR WIDGET') # TODO migrate
+    date_delivered = models.DateField(help_text='USE CALENDAR WIDGET')
     dna_concentration = models.PositiveIntegerField(validators=[MinValueValidator(0)])
     dna_quality_260_280 = models.FloatField(validators=[MinValueValidator(0.0), MaxValueValidator(3.0)])
     dna_quality_260_230 = models.FloatField(validators=[MinValueValidator(0.0), MaxValueValidator(3.0)])
     notes = models.TextField(max_length=255, null=True, blank=True)
     created_by = models.ForeignKey(CustomUser, null=True, blank=True, on_delete=models.PROTECT)
     tests = models.ManyToManyField(DetectionKit, through='PatientSampleDetectionKit')
-    date_created = models.DateTimeField(auto_now_add=True, editable=False)
+    date_created = models.DateTimeField(auto_now_add=True, editable=False, )
     date_modified = models.DateTimeField(auto_now=True)
 
     def __str__(self):
