@@ -7,9 +7,10 @@ class DetectionKitAdmin(admin.ModelAdmin):
         'name',
         'date_created',
         'created_by',
+    
     )
 
-    filter_horizontal = ('markers', )
+    filter_horizontal = ('linked_markers', )
 
 
     def formfield_for_foreignkey(self, db_field, request, **kwargs):

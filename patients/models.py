@@ -58,7 +58,7 @@ class PatientSampleDetectionKit(models.Model):
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
         record_pk = self.pk
-        kit_markers = self.test.markers.all()
+        kit_markers = self.test.linked_markers.all()
 
         for marker in kit_markers:
             if not ResultSNP.objects.filter(
