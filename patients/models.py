@@ -192,12 +192,28 @@ class ReportRuleTwoSNP(models.Model):
         #genotypes_snp_1 = [''.join(sorted(genotype)) for genotype in genotypes_snp_1]
         #genotypes_snp_2 = [''.join(sorted(genotype)) for genotype in genotypes_snp_2]
 
-        for genotype_snp_1 in genotypes_snp_1:
-            for genotype_snp_2 in genotypes_snp_2:
-                if not ReportCombinations.objects.filter(
-                            report_rule_two_snp=self,
-                            genotype_snp_1=genotype_snp_1,
-                            genotype_snp_2=genotype_snp_2).exists():
+        
+        report_combinations = ReportCombinations.objects.filter(report_rule_two_snp=self)       
+        if report_combinations:
+            # здесь нужно как-то продумать так:
+            # нельзя удалять полностью записи, так как там есть данные для репорта
+            # нужно только подменить измененные данные генотипов для первого и второго 
+            # снипа. только пока не ясно, как это сделать правильно и не запутаться
+            # потому что перебором мы можем вставить не те генотипы - и заключение потеряет смысл
+            # возможно, нужно как-то добавить скрытое поле - например тоже внешний ключ на маркер, 
+            # и как-то по нему искать
+            for report_comb in report_combinations:
+                for genotype_snp_1 in genotypes_snp_1:
+                    for genotype_snp_2 in genotypes_snp_2: # TODO issue 7
+    
+                        report_comb.genotype_snp_1 = genotypes_snp_1
+                        
+                        report_comb.genotype_snp_2 = genotypes_snp_2
+                        report_comb.save()
+        else:
+            for genotype_snp_1 in genotypes_snp_1:
+                for genotype_snp_2 in genotypes_snp_2: # TODO issue 7
+                
                     ReportCombinations.objects.create(
                             report_rule_two_snp=self,
                             genotype_snp_1=genotype_snp_1,

@@ -168,7 +168,38 @@ class TestPatientAppModels(TestCase):
         self.assertEqual(ConclusionSNP.objects.all().count(), 1)
         conc = ConclusionSNP.objects.get(test=self.detection_kit, patient=self.patient)
         self.assertEqual(conc.conclusion, 'report: AA and TT')
-        
+
+
+    def test_reportcombinations_after_singlenucpol_update(self):
+        report_rule = self.detection_kit.report_rules.all()[0]
+        print('report rule genotype 1', report_rule.snp_1, flush=True)
+        print('report rule genotype 1', report_rule.snp_2, flush=True)
+        snp_1 = SingleNucPol.objects.get(rs='rs1')
+        print('snp_1.nuc_var_2: ', snp_1.nuc_var_2, flush=True)
+        snp_1.nuc_var_2 = 'C'
+        snp_1.save()
+        print('snp_1.nuc_var_2: ', snp_1.nuc_var_2, flush=True)
+        report_rule = self.detection_kit.report_rules.all()[0]
+        print('report rule genotype 1', report_rule.snp_1, flush=True)
+        print('report rule genotype 1', report_rule.snp_2, flush=True)
+
+
+        report_combs = ReportCombinations.objects.filter(report_rule_two_snp=report_rule.pk)
+        self.assertEqual(len(report_combs), 9)
+
+        print('BEFORE saving ReportRule')
+        for report_comb in report_combs:
+            print('comb genotype 1: ', report_comb.genotype_snp_1)
+
+
+        report_rule.save() # !!!! shift to the marker???
+        report_combs = ReportCombinations.objects.filter(report_rule_two_snp=report_rule.pk)
+        print('AFTER saving ReportRule')
+        for report_comb in report_combs:
+            print('comb genotype 1: ', report_comb.genotype_snp_1)
+
+
+        self.assertEqual(len(report_combs), 9)
         
 
 
