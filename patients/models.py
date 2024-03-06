@@ -86,7 +86,9 @@ class ResultSNP(models.Model):
     patient_sample = models.ForeignKey(PatientSample, on_delete=models.CASCADE)
     test = models.ForeignKey(DetectionKit, on_delete=models.CASCADE)
     rs = models.ForeignKey(SingleNucPol, on_delete=models.CASCADE)
-    result = models.CharField(max_length=4, blank=True, null=True, help_text='use only English characters for result')    
+    result = models.CharField(max_length=4, blank=True, null=True, 
+                              help_text="use only English characters for result.\
+                                USE NUCLEOTIDE ORDER DESIGNATED IN THE RESULT NAME ABOVE")    
     date_created = models.DateTimeField(auto_now_add=True, editable=False)
     date_modified = models.DateTimeField(auto_now=True)
 
