@@ -45,10 +45,10 @@ class TestPatientAppModels(TestCase):
             created_by=None,
         )
 
-        cls.detection_kit.markers.add(cls.snp_1)
-        cls.detection_kit.markers.add(cls.snp_2)
-        cls.detection_kit.markers.add(cls.snp_3)
-        cls.detection_kit.markers.add(cls.snp_4)
+        cls.detection_kit.linked_markers.add(cls.snp_1)
+        cls.detection_kit.linked_markers.add(cls.snp_2)
+        cls.detection_kit.linked_markers.add(cls.snp_3)
+        cls.detection_kit.linked_markers.add(cls.snp_4)
 
         cls.patient.tests.add(cls.detection_kit) 
 
@@ -92,7 +92,7 @@ class TestPatientAppModels(TestCase):
 
     def test_patientsampledetectionkit_model(self):
         detection_kit = DetectionKit.objects.get(pk=self.patientsample_detectionkit.test.pk)
-        markers = detection_kit.markers.all()
+        markers = detection_kit.linked_markers.all()
         
         rs_ids = []
         for marker in markers:

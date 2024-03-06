@@ -27,13 +27,13 @@ class TestDetectionKitModel(TestCase):
             
         )
 
-        cls.detection_kit.markers.add(cls.snp) 
+        cls.detection_kit.linked_markers.add(cls.snp) 
 
 
     def test_detectionkit_model(self):
         self.assertEqual(self.detection_kit.name, 'GeneKit')
         #self.assertEqual(self.detection_kit.date_created, datetime.date(2023, 12, 31))
         self.assertEqual(self.detection_kit.created_by, None)
-        self.assertEqual(self.detection_kit.markers.get(pk=self.snp.pk), self.snp)
+        self.assertEqual(self.detection_kit.linked_markers.get(pk=self.snp.pk), self.snp)
         self.assertEqual(self.detection_kit.kit_type, 'SNP')
 
