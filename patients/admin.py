@@ -74,7 +74,7 @@ class ReportCombinationsAdmin(admin.ModelAdmin):
 class ConclusionSNPAdmin(admin.ModelAdmin):
     readonly_fields = ('test', 'patient', 'conclusion')
     search_fields = ('patient__last_name', 'patient__lab_id', 'test__name')
-    search_help_text = 'search by patient. case sensitive. use "Иванов", not "иванов"'
+    search_help_text = 'search by patient last name, patient lab_id or kit name. case sensitive. use "Иванов", not "иванов"'
 
     def has_add_permission(self, request, obj=None):
         return False
