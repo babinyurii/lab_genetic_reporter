@@ -5,6 +5,9 @@ from django.utils.timezone import now
 from users.models import CustomUser
 
 
+
+
+
 class SingleNucPol(models.Model):
     ADENINE = 'A'
     CYTOSINE = 'C'
@@ -59,4 +62,3 @@ class SingleNucPol(models.Model):
     class Meta:
         verbose_name = 'SNP'
         verbose_name_plural = 'SNPs'
-    
