@@ -147,7 +147,7 @@ class TestPatientAppModels(TestCase):
         
         self.assertEqual(ConclusionSNP.objects.all().count(), 1)
         conc = ConclusionSNP.objects.get(test=self.detection_kit, patient=self.patient)
-        self.assertEqual(conc.conclusion, 'report: GG and CC')
+        self.assertEqual(conc.conclusion, 'report: GG and CC\n')
 
 
         for snp in snps:
@@ -157,7 +157,7 @@ class TestPatientAppModels(TestCase):
         
         self.assertEqual(ConclusionSNP.objects.all().count(), 1)
         conc = ConclusionSNP.objects.get(test=self.detection_kit, patient=self.patient)
-        self.assertEqual(conc.conclusion, 'report: GA and CT')
+        self.assertEqual(conc.conclusion, 'report: GA and CT\n')
 
 
         for snp in snps:
@@ -167,7 +167,7 @@ class TestPatientAppModels(TestCase):
         
         self.assertEqual(ConclusionSNP.objects.all().count(), 1)
         conc = ConclusionSNP.objects.get(test=self.detection_kit, patient=self.patient)
-        self.assertEqual(conc.conclusion, 'report: AA and TT')
+        self.assertEqual(conc.conclusion, 'report: AA and TT\n')
 
 
     def test_reportcombinations_after_singlenucpol_update(self):
