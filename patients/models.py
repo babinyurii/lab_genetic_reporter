@@ -40,7 +40,7 @@ class PatientSample(models.Model):
 
     class Meta:
         verbose_name = 'Sample'
-        verbose_name_plural = 'Samples'
+        verbose_name_plural = '3. Samples'
 
     def clean(self):
         if self.date_sampled > date.today():
@@ -100,7 +100,7 @@ class ResultSNP(models.Model):
 
     class Meta:
         verbose_name = 'SNP result'
-        verbose_name_plural = 'SNP results'
+        verbose_name_plural = '4. SNP results'
 
     def __str__(self):
         return f'patient:  {self.patient_sample}.  SNP:  {self.rs}.  result: {self.result}'
@@ -189,6 +189,10 @@ class ReportRuleTwoSNP(models.Model):
     note = models.TextField(max_length=1000)
     order_in_conclusion = models.IntegerField(default=1, choices=ORDER_FOR_CONCLUSION)
 
+    class Meta:
+        verbose_name = 'Report rule for two SNP'
+        verbose_name_plural = '1. Report rules for two SNP'
+
     def __str__(self):
         return f'report rule: {self.name}'
 
@@ -245,7 +249,7 @@ class ReportCombinations(models.Model): # TODO rename to combinations 2 snp. fir
    
     class Meta:
         verbose_name = 'report rules: conclusions for genotype combinations'
-        verbose_name_plural = 'report rules: conclusions for genotype combinations'
+        verbose_name_plural = '2. report rules: conclusions for genotype combinations'
 
     def __str__(self):
         return self.report_rule_two_snp.name
@@ -264,7 +268,7 @@ class ConclusionSNP(models.Model):
 
     class Meta:
         verbose_name = 'conclusion for report'
-        verbose_name_plural = 'conclusions for reports'
+        verbose_name_plural = '5. Conclusions for reports'
         constraints = [models.UniqueConstraint(fields=['patient', 'test', ], 
                       name='patient_and_test_unique_constraint_for_conclusion')]
 
