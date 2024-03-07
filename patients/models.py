@@ -6,7 +6,7 @@ from django.core.validators import MinValueValidator, MaxValueValidator
 from markers.models import SingleNucPol
 from django.core.exceptions import ValidationError
 from django.core.exceptions import ObjectDoesNotExist
-import string  
+from patients.constants import allowed_chars
 
 
 def check_if_rs_exists(value):
@@ -16,6 +16,8 @@ def check_if_rs_exists(value):
 
 
 class PatientSample(models.Model):
+ 
+
     first_name = models.CharField(max_length=255)
     last_name = models.CharField(max_length=255)
     middle_name = models.CharField(max_length=255, blank=True, null=True)
@@ -24,7 +26,7 @@ class PatientSample(models.Model):
     lab_id = models.CharField(max_length=255, unique=True)
     date_sampled = models.DateField(help_text='USE CALENDAR WIDGET') # TODO migrate
     date_delivered = models.DateField(help_text='USE CALENDAR WIDGET')
-    dna_concentration = models.PositiveIntegerField(validators=[MinValueValidator(0)])
+    dna_concentration = models.FloatField(validators=[MinValueValidator(0)])
     dna_quality_260_280 = models.FloatField(validators=[MinValueValidator(0.0), MaxValueValidator(3.0)])
     dna_quality_260_230 = models.FloatField(validators=[MinValueValidator(0.0), MaxValueValidator(3.0)])
     notes = models.TextField(max_length=255, null=True, blank=True)
@@ -47,6 +49,9 @@ class PatientSample(models.Model):
             raise ValidationError(f'check delivery date: sample can not be delivered in the future. date delivered: {self.date_delivered} ')
         if self.date_sampled > self.date_delivered:
             raise ValidationError(f'check sampling date: sample can not be sampled after delivery date')
+        for char in self.lab_id:
+            if char not in allowed_chars:
+                raise ValidationError(f'use only english characters, numbers, underscore and hyphen for lab id')
        
 
 
