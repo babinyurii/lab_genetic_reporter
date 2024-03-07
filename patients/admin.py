@@ -13,10 +13,19 @@ class PatientSampleDetectionKitInline(admin.TabularInline):
 
 class PatientSampleAdmin(admin.ModelAdmin):
     list_display = ('lab_id', 'last_name', 'first_name',  'date_sampled', 'date_delivered',
-    'dna_concentration', 'dna_quality_260_280', 'dna_quality_260_230', 'notes', )
+    'dna_concentration', 'dna_quality_260_280', 'dna_quality_260_230', 'notes',) # 'tests')
     list_display_links = ('lab_id', )
     inlines = (PatientSampleDetectionKitInline, )
-
+    search_fields = ('lab_id', 'last_name',)
+    search_help_text = 'Search by lab_id or last name. Case sensitive. f.e. use "Иванов", not "иванов"'
+    list_filter = ('tests', )
+    """
+    def tests(self, obj):
+        return ", ".join([
+            kit.name for kit in obj.tests.test.all()
+        ])
+    """
+    
 
 class ResultSNPAdmin(admin.ModelAdmin):
     readonly_fields = ('patient_sample', 'test', 'rs')
@@ -40,6 +49,7 @@ class ReportRuleTwoSNPAdmin(admin.ModelAdmin):
     form = ReportRuleForm
     list_display = ('name', 'detection_kits', 'snp_1', 'snp_2', 'order_in_conclusion',)
     #readonly_fields = ('detection_kits',)
+    list_filter = ('tests', )
     
 
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
@@ -73,8 +83,8 @@ class ReportCombinationsAdmin(admin.ModelAdmin):
 
 class ConclusionSNPAdmin(admin.ModelAdmin):
     readonly_fields = ('test', 'patient', 'conclusion')
-    search_fields = ('patient',)
-    search_help_text = 'search by patient. case sensitive. use "Иванов", not "иванов"'
+    search_fields = ('patient__last_name', 'patient__lab_id', 'test__name')
+    search_help_text = 'search by patient last name, patient lab_id or kit name. case sensitive. use "Иванов", not "иванов"'
 
     def has_add_permission(self, request, obj=None):
         return False

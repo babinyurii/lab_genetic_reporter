@@ -1,15 +1,23 @@
 from django.contrib import admin
-from detection_kits.models import DetectionKit
+from detection_kits.models import DetectionKit, DetectionKitMarkers
 from django.contrib.auth import get_user_model
+
+
+class DetectionKitMarkersInline(admin.TabularInline):
+    model = DetectionKitMarkers
+    extra = 5 # how many rows to show
+
 
 class DetectionKitAdmin(admin.ModelAdmin):
     list_display = (
         'name',
         'date_created',
         'created_by',
+    
     )
 
-    filter_horizontal = ('markers', )
+    #filter_horizontal = ('linked_markers', )
+    inlines = (DetectionKitMarkersInline, )
 
 
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
