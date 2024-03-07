@@ -6,6 +6,7 @@ from django.core.validators import MinValueValidator, MaxValueValidator
 from markers.models import SingleNucPol
 from django.core.exceptions import ValidationError
 from django.core.exceptions import ObjectDoesNotExist
+from patients.constants import allowed_chars
 
 
 def check_if_rs_exists(value):
@@ -15,21 +16,23 @@ def check_if_rs_exists(value):
 
 
 class PatientSample(models.Model):
+ 
+
     first_name = models.CharField(max_length=255)
     last_name = models.CharField(max_length=255)
     middle_name = models.CharField(max_length=255, blank=True, null=True)
     age = models.PositiveIntegerField(validators=[MinValueValidator(0), MaxValueValidator(122)])
     clinic_id = models.CharField(max_length=255, blank=True, null=True)
     lab_id = models.CharField(max_length=255, unique=True)
-    date_sampled = models.DateField() # TODO migrate
-    date_delivered = models.DateField()
-    dna_concentration = models.PositiveIntegerField(validators=[MinValueValidator(0)])
+    date_sampled = models.DateField(help_text='USE CALENDAR WIDGET') # TODO migrate
+    date_delivered = models.DateField(help_text='USE CALENDAR WIDGET')
+    dna_concentration = models.FloatField(validators=[MinValueValidator(0)])
     dna_quality_260_280 = models.FloatField(validators=[MinValueValidator(0.0), MaxValueValidator(3.0)])
     dna_quality_260_230 = models.FloatField(validators=[MinValueValidator(0.0), MaxValueValidator(3.0)])
     notes = models.TextField(max_length=255, null=True, blank=True)
     created_by = models.ForeignKey(CustomUser, null=True, blank=True, on_delete=models.PROTECT)
     tests = models.ManyToManyField(DetectionKit, through='PatientSampleDetectionKit')
-    date_created = models.DateTimeField(auto_now_add=True, editable=False)
+    date_created = models.DateTimeField(auto_now_add=True, editable=False, )
     date_modified = models.DateTimeField(auto_now=True)
 
     def __str__(self):
@@ -37,7 +40,7 @@ class PatientSample(models.Model):
 
     class Meta:
         verbose_name = 'Sample'
-        verbose_name_plural = 'Samples'
+        verbose_name_plural = '3. Samples'
 
     def clean(self):
         if self.date_sampled > date.today():
@@ -46,6 +49,9 @@ class PatientSample(models.Model):
             raise ValidationError(f'check delivery date: sample can not be delivered in the future. date delivered: {self.date_delivered} ')
         if self.date_sampled > self.date_delivered:
             raise ValidationError(f'check sampling date: sample can not be sampled after delivery date')
+        for char in self.lab_id:
+            if char not in allowed_chars:
+                raise ValidationError(f'use only english characters, numbers, underscore and hyphen for lab id')
        
 
 
@@ -86,13 +92,15 @@ class ResultSNP(models.Model):
     patient_sample = models.ForeignKey(PatientSample, on_delete=models.CASCADE)
     test = models.ForeignKey(DetectionKit, on_delete=models.CASCADE)
     rs = models.ForeignKey(SingleNucPol, on_delete=models.CASCADE)
-    result = models.CharField(max_length=4, blank=True, null=True, help_text='use only English characters for result')    
+    result = models.CharField(max_length=4, blank=True, null=True, 
+                              help_text="use only English characters for result.\
+                                USE NUCLEOTIDE ORDER DESIGNATED IN THE RESULT NAME ABOVE")    
     date_created = models.DateTimeField(auto_now_add=True, editable=False)
     date_modified = models.DateTimeField(auto_now=True)
 
     class Meta:
         verbose_name = 'SNP result'
-        verbose_name_plural = 'SNP results'
+        verbose_name_plural = '4. SNP results'
 
     def __str__(self):
         return f'patient:  {self.patient_sample}.  SNP:  {self.rs}.  result: {self.result}'
@@ -139,6 +147,7 @@ class ResultSNP(models.Model):
                     # TODO catch
                     #print('conclusiion: ', conclusion_for_result.report, flush=True)
                     text += conclusion_for_result.report
+                    text += '\n'
 
                 if not ConclusionSNP.objects.filter(patient=self.patient_sample, test=self.test).exists():
                     ConclusionSNP.objects.create(patient=self.patient_sample,
@@ -179,6 +188,10 @@ class ReportRuleTwoSNP(models.Model):
     snp_2 = models.ForeignKey(SingleNucPol, on_delete=models.CASCADE, related_name='report_rules_snp_2')
     note = models.TextField(max_length=1000)
     order_in_conclusion = models.IntegerField(default=1, choices=ORDER_FOR_CONCLUSION)
+
+    class Meta:
+        verbose_name = 'Report rule for two SNP'
+        verbose_name_plural = '1. Report rules for two SNP'
 
     def __str__(self):
         return f'report rule: {self.name}'
@@ -236,7 +249,7 @@ class ReportCombinations(models.Model): # TODO rename to combinations 2 snp. fir
    
     class Meta:
         verbose_name = 'report rules: conclusions for genotype combinations'
-        verbose_name_plural = 'report rules: conclusions for genotype combinations'
+        verbose_name_plural = '2. report rules: conclusions for genotype combinations'
 
     def __str__(self):
         return self.report_rule_two_snp.name
@@ -255,7 +268,7 @@ class ConclusionSNP(models.Model):
 
     class Meta:
         verbose_name = 'conclusion for report'
-        verbose_name_plural = 'conclusions for reports'
+        verbose_name_plural = '5. Conclusions for reports'
         constraints = [models.UniqueConstraint(fields=['patient', 'test', ], 
                       name='patient_and_test_unique_constraint_for_conclusion')]
 
