@@ -5,7 +5,7 @@ from django.contrib.auth import get_user_model
 
 class DetectionKitMarkersInline(admin.TabularInline):
     model = DetectionKitMarkers
-    extra = 5 # how many rows to show
+    extra = 5
 
 
 class DetectionKitAdmin(admin.ModelAdmin):
@@ -13,12 +13,9 @@ class DetectionKitAdmin(admin.ModelAdmin):
         'name',
         'date_created',
         'created_by',
-    
     )
 
-    #filter_horizontal = ('linked_markers', )
     inlines = (DetectionKitMarkersInline, )
-
 
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
         if db_field.name == "created_by":
@@ -29,7 +26,6 @@ class DetectionKitAdmin(admin.ModelAdmin):
             db_field, request, **kwargs
         )
 
-
     def add_view(self, request, form_url='', extra_context=None):
         data = request.GET.copy()
         data['created_by'] = request.user
@@ -37,5 +33,6 @@ class DetectionKitAdmin(admin.ModelAdmin):
         return super(DetectionKitAdmin, self).add_view(
             request, form_url='', extra_context=extra_context
         )
+
 
 admin.site.register(DetectionKit, DetectionKitAdmin)

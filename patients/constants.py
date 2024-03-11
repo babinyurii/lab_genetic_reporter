@@ -1,6 +1,5 @@
 import string
 
-# string.ascii_lowercase + string.ascii_uppercase
 
 low_chars = [char for char in string.ascii_lowercase]
 upper_chars = [char for char in string.ascii_uppercase]

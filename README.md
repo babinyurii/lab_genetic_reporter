@@ -2,7 +2,7 @@ Our in-house Django-based tool to register genetic samples and make automatic co
 
 
 # Installation
-- clone the repository
+- clone the repository: `git clone git@github.com:babinyurii/lab_genetic_reporter.git`
 - run migrations: `python manage.py makemigrations`, `python manage.py migrate`
 - run tests: `python manage.py test`
 - run the project: `python manage.py runserver` or adapt the `run.bat` file for your project location
