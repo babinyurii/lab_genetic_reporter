@@ -1,5 +1,12 @@
 Our in-house Django-based tool to register genetic samples and make automatic conclusions for genetic reports. Currently only admin interface is used.
 
+
+# Installation
+- clone the repository
+- run migrations: `python manage.py makemigrations`, `python manage.py migrate`
+- run tests: `python manage.py test`
+- run the project: `python manage.py runserver` or adapt the `run.bat` file for your project location
+
 # Workflow
 
 # Preparation of SNP, detection kits and conlusion templates
