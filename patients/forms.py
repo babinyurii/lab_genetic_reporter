@@ -21,7 +21,8 @@ class ReportRuleForm(forms.ModelForm):
         kits = data.get('tests')
 
         if snp_1 == snp_2:
-            raise ValidationError(f'field snp_1 {snp_1} and field snp_2 {snp_2} are the same. Choose different markers')
+            raise ValidationError(f'field snp_1 {snp_1} and field snp_2 \
+                {snp_2} are the same. Choose different markers')
         if not kits:
             raise ValidationError('choose kit')
         if not self.instance.pk:
@@ -31,7 +32,8 @@ class ReportRuleForm(forms.ModelForm):
                     ReportRuleTwoSNP.objects.filter(
                         snp_1=snp_2, snp_2=snp_1, tests=kit).exists():
                     raise ValidationError(
-                        f'the database already has the record with the kit:  "{kit}",  snp 1:  "{snp_1}",  snp 2:  "{snp_2}"')
+                        f'the database already has the record with the kit:\
+                             "{kit}",  snp 1:  "{snp_1}",  snp 2:  "{snp_2}"')
 
             for snp in snps:
                 if not kit.linked_markers.filter(rs=snp.rs).exists():

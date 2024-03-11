@@ -34,7 +34,6 @@ class PatientSampleAdmin(admin.ModelAdmin):
         f.e. use "Иванов", not "иванов"'
     list_filter = ('tests', )
 
-
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
         if db_field.name == "created_by":
             kwargs["queryset"] = get_user_model().objects.filter(
@@ -53,7 +52,6 @@ class PatientSampleAdmin(admin.ModelAdmin):
         )
 
 
-
 class ResultSNPAdmin(admin.ModelAdmin):
     readonly_fields = ('patient_sample', 'test', 'rs')
 
@@ -70,7 +68,6 @@ class ResultSNPAdmin(admin.ModelAdmin):
     def has_add_permission(self, request, obj=None):
         return False
 
-   
 
 class ReportRuleTwoSNPAdmin(admin.ModelAdmin):
     form = ReportRuleForm
@@ -136,8 +133,6 @@ class ConclusionSNPAdmin(admin.ModelAdmin):
         extra_context['show_save'] = False
         return super(ConclusionSNPAdmin, self).changeform_view(
             request, object_id, extra_context=extra_context)
-
-    
 
 
 admin.site.register(PatientSample, PatientSampleAdmin)

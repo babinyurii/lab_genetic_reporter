@@ -1,7 +1,6 @@
 from django.contrib import admin
 from django.contrib.auth import get_user_model
 from markers.models import SingleNucPol
-from users.models import CustomUser
 
 
 class SingleNucPolAdmin(admin.ModelAdmin):
@@ -12,10 +11,9 @@ class SingleNucPolAdmin(admin.ModelAdmin):
                     'nuc_var_2',
                     'nuc_var_2_clin_signif',
                     'gene_name_full',
-                    'created_by' )
+                    'created_by')
     list_display_links = ()
     search_fields = ('rs', 'gene_name_short', 'gene_name_full', )
-
 
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
         if db_field.name == "created_by":
