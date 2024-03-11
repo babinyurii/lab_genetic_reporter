@@ -48,6 +48,10 @@ class PatientSample(models.Model):
         verbose_name_plural = '3. Samples'
 
     def clean(self):
+        if not self.date_delivered:
+            raise ValidationError('enter delivery date')
+        if not self.date_sampled:
+            raise ValidationError('enter sampling date')
         if self.date_sampled > date.today():
             raise ValidationError(
                  f'check sampling date: sample can not be\
