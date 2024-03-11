@@ -38,8 +38,7 @@ Report rule consists of 9 genotype combinations which have clinical significance
 - go to `SNP SAMPLES AND RESULTS`, section `4. SNP results`
 - fill in the genotype results for each result record
 
-**When the last result for a particular sample is saved, the conlusion based on the report rule genotype combinations is generated in the 
-`SNP SAMPLES AND RESULTS`, section `5. Conclusions for reports`**
+**When the last result for a particular sample is saved, the conlusion based on the report rule genotype combinations is generated in the `SNP SAMPLES AND RESULTS`, section `5. Conclusions for reports`**
 
 
 
