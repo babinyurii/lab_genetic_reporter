@@ -19,7 +19,7 @@ class PatientSample(models.Model):
     first_name = models.CharField(max_length=255)
     last_name = models.CharField(max_length=255)
     middle_name = models.CharField(max_length=255, blank=True, null=True)
-    age = models.PositiveIntegerField(validators=[MinValueValidator(0),
+    age = models.PositiveIntegerField(validators=[MinValueValidator(1),
                                       MaxValueValidator(122)])
     clinic_id = models.CharField(max_length=255, blank=True, null=True)
     lab_id = models.CharField(max_length=255, unique=True)
