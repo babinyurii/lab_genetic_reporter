@@ -3,6 +3,7 @@ from django.core.exceptions import ValidationError
 from django.core.validators import (URLValidator,
                                     MinValueValidator,
                                     MaxValueValidator,)
+from users.models import CustomUser
 
 
 class SingleNucPol(models.Model):
@@ -77,6 +78,8 @@ class SingleNucPol(models.Model):
                                   )
     date_created = models.DateTimeField(auto_now_add=True, editable=False)
     date_modified = models.DateTimeField(auto_now=True)
+    created_by = models.ForeignKey(CustomUser, null=True,
+                                blank=True, on_delete=models.PROTECT)
 
     def clean(self):
         if self.nuc_var_1 == self.nuc_var_2:

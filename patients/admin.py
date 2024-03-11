@@ -25,7 +25,8 @@ class PatientSampleAdmin(admin.ModelAdmin):
                     'dna_concentration',
                     'dna_quality_260_280',
                     'dna_quality_260_230',
-                    'notes',)
+                    'notes',
+                    'created_by')
     list_display_links = ('lab_id', )
     inlines = (PatientSampleDetectionKitInline, )
     search_fields = ('lab_id', 'last_name',)
