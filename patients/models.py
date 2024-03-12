@@ -76,8 +76,8 @@ class PatientSample(models.Model):
 
 
 class PatientSampleDetectionKit(models.Model):
-    patient_sample = models.ForeignKey(PatientSample, on_delete=models.PROTECT)
-    test = models.ForeignKey(DetectionKit, on_delete=models.PROTECT)
+    patient_sample = models.ForeignKey(PatientSample, null=True, on_delete=models.SET_NULL)
+    test = models.ForeignKey(DetectionKit, null=True, on_delete=models.SET_NULL)
     date_created = models.DateTimeField(auto_now_add=True)
 
     def save(self, *args, **kwargs):
