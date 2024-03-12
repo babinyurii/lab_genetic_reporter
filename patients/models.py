@@ -7,7 +7,7 @@ from markers.models import SingleNucPol
 from django.core.exceptions import ValidationError
 from django.core.exceptions import ObjectDoesNotExist
 from patients.constants import allowed_chars
-
+from django.utils.timezone import now
 
 def check_if_rs_exists(value):
     if not SingleNucPol.objects.filter(rs=value).exists():
@@ -48,6 +48,9 @@ class PatientSample(models.Model):
         verbose_name_plural = '3. Samples'
 
     def clean(self):
+        if not self.date_sampled or not self.date_delivered:
+            raise ValidationError('please fill in both sampling and delivery dates')
+            
         if self.date_sampled > date.today():
             raise ValidationError(
                  f'check sampling date: sample can not be\
