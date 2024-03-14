@@ -271,9 +271,6 @@ class ReportCombinations(models.Model):
     def __str__(self):
         return self.report_rule_two_snp.name
 
-    def clean(self):
-        pass
-
 
 class ConclusionSNP(models.Model):
     patient = models.ForeignKey(PatientSample, on_delete=models.CASCADE)
