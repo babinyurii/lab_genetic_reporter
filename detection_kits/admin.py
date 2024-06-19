@@ -1,5 +1,7 @@
 from django.contrib import admin
-from detection_kits.models import DetectionKit, DetectionKitMarkers
+from detection_kits.models import (DetectionKit, 
+                                DetectionKitMarkers, 
+                                ConclusionsForSNP)
 from django.contrib.auth import get_user_model
 
 
@@ -34,5 +36,24 @@ class DetectionKitAdmin(admin.ModelAdmin):
             request, form_url='', extra_context=extra_context
         )
 
+class ConclusionsForSNPAdmin(admin.ModelAdmin):
+    model = ConclusionsForSNP
+    list_display = (
+        'det_kit_marker',
+        'genotype',
+        'short_conclusion',
+    )
+
+    list_filter = ('det_kit_marker__detection_kit',
+                    'det_kit_marker__marker' )
+
+
+    
+
+
 
 admin.site.register(DetectionKit, DetectionKitAdmin)
+admin.site.register(ConclusionsForSNP, ConclusionsForSNPAdmin)
+
+
+

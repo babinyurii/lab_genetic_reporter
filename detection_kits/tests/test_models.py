@@ -1,5 +1,8 @@
 from django.test import TestCase
-from detection_kits.models import DetectionKit
+from detection_kits.models import (DetectionKit, 
+                                   MarkerCategoryInKit,
+                                   DetectionKitMarkers,
+                                   ConclusionsForSNP)
 from markers.models import SingleNucPol
 import datetime
 
@@ -23,8 +26,7 @@ class TestDetectionKitModel(TestCase):
             name='GeneKit',
             #date_created=datetime.date(2023, 12, 31),
             created_by=None,
-            kit_type='SNP',
-            
+            kit_type='SNP', 
         )
 
         cls.detection_kit.linked_markers.add(cls.snp) 
@@ -36,4 +38,42 @@ class TestDetectionKitModel(TestCase):
         self.assertEqual(self.detection_kit.created_by, None)
         self.assertEqual(self.detection_kit.linked_markers.get(pk=self.snp.pk), self.snp)
         self.assertEqual(self.detection_kit.kit_type, 'SNP')
+
+
+    def test_conc_for_snp_table_creation(self):
+
+        #print('*' * 100, self.detection_kit.linked_markers.all(), flush=True)
+        det_kit_marker = DetectionKitMarkers.objects.all()[0]
+        #print('*' * 100, det_kit_marker, flush=True)
+        det_kit_marker.save()
+        concs = ConclusionsForSNP.objects.all()
+        genotypes_in_concs = ConclusionsForSNP.objects.values_list('genotype', flat=True)
+        #print("=" * 100, genotypes_in_concs, flush=True)
+
+        self.assertEqual(len(concs), 3)
+        for genotype in ['CC', 'CA', 'AA']:
+            self.assertIn(genotype, genotypes_in_concs)
+
+
+
+
+class TestMarkerCategoryInKitModel(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.category = MarkerCategoryInKit.objects.create(
+            name = 'inflammation')
+
+
+    def test_marker_category_in_kit_model(self):
+        self.assertEqual(self.category.name, 'inflammation')
+
+
+
+
+
+    
+
+
+
+
 
