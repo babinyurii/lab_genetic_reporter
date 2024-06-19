@@ -1,6 +1,6 @@
 import datetime
 from django.test import TestCase
-from detection_kits.models import DetectionKit
+from detection_kits.models import DetectionKit, DetectionKitMarkers, ConclusionsForSNP
 from markers.models import SingleNucPol
 from patients.models import (PatientSample,
                              PatientSampleDetectionKit,
@@ -144,35 +144,65 @@ class TestPatientAppModels(TestCase):
 
     def test_conclusionmodel(self):
         snps = SingleNucPol.objects.all()
+        det_kit_markers = DetectionKitMarkers.objects.all()
+        self.assertEqual(len(det_kit_markers), 4)
+
+        for det_kit_marker in det_kit_markers:
+            det_kit_marker.marker_category_in_kit = 'воспаление'
+            det_kit_marker.save()
+            #print('|'* 100, det_kit_marker.marker_category_in_kit, flush=True)
+
+        concs_for_snp = ConclusionsForSNP.objects.all()
+        self.assertEqual(len(concs_for_snp), 12)
+
+        for conc in concs_for_snp:
+            conc.conclusion = f'single nuc conclusion for: {conc.genotype}'
+            conc.save()
+         
+
+        ###############################################
+        # check in case  all results are 'major' homozygous
         for snp in snps:
             result = ResultSNP.objects.get(rs=snp)
-            result.result = f'{snp.nuc_var_1}{snp.nuc_var_1}' # all 'major' homozygous
+
+            result.result = f'{snp.nuc_var_1}{snp.nuc_var_1}' 
             result.save()
 
         self.assertEqual(ConclusionSNP.objects.all().count(), 1)
         conc = ConclusionSNP.objects.get(test=self.detection_kit, patient=self.patient)
-        self.assertEqual(conc.conclusion, 'report: GG and CC\n')
-
-
+        # the result in report only for one combination: snp1 and snp2
+        self.assertIn('report: GG and CC\n', conc.conclusion, )
+        print('conclusion: ', conc.conclusion)
+        
+        for snp in snps:
+            self.assertIn(f'single nuc conclusion for: {snp.nuc_var_1}{snp.nuc_var_1}', conc.conclusion,)
+       
+        # all heterozygous
         for snp in snps:
             result = ResultSNP.objects.get(rs=snp)
-            result.result = f'{snp.nuc_var_1}{snp.nuc_var_2}' # all heterozygous
+            result.result = f'{snp.nuc_var_1}{snp.nuc_var_2}' 
             result.save()
 
         self.assertEqual(ConclusionSNP.objects.all().count(), 1)
         conc = ConclusionSNP.objects.get(test=self.detection_kit, patient=self.patient)
-        self.assertEqual(conc.conclusion, 'report: GA and CT\n')
-
-
+        self.assertIn('report: GA and CT\n', conc.conclusion, )
+        for snp in snps:
+            self.assertIn(f'single nuc conclusion for: {snp.nuc_var_1}{snp.nuc_var_2}', conc.conclusion,)
+    
+       
+        ############################################
+        # all 'minor' homozygous
         for snp in snps:
             result = ResultSNP.objects.get(rs=snp)
-            result.result = f'{snp.nuc_var_2}{snp.nuc_var_2}' # all 'minor' homozygous
+            result.result = f'{snp.nuc_var_2}{snp.nuc_var_2}' 
             result.save()
 
         self.assertEqual(ConclusionSNP.objects.all().count(), 1)
         conc = ConclusionSNP.objects.get(test=self.detection_kit, patient=self.patient)
-        self.assertEqual(conc.conclusion, 'report: AA and TT\n')
-
+        self.assertIn('report: AA and TT\n', conc.conclusion, )
+        for snp in snps:
+            self.assertIn(f'single nuc conclusion for: {snp.nuc_var_2}{snp.nuc_var_2}', conc.conclusion,)
+        
 
     def test_reportcombinations_after_singlenucpol_update(self):
         report_rule = self.detection_kit.report_rules.all()[0]

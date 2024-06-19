@@ -1,6 +1,5 @@
 from django.test import TestCase
 from detection_kits.models import (DetectionKit, 
-                                   MarkerCategoryInKit,
                                    DetectionKitMarkers,
                                    ConclusionsForSNP)
 from markers.models import SingleNucPol
@@ -53,19 +52,6 @@ class TestDetectionKitModel(TestCase):
         self.assertEqual(len(concs), 3)
         for genotype in ['CC', 'CA', 'AA']:
             self.assertIn(genotype, genotypes_in_concs)
-
-
-
-
-class TestMarkerCategoryInKitModel(TestCase):
-    @classmethod
-    def setUpTestData(cls):
-        cls.category = MarkerCategoryInKit.objects.create(
-            name = 'inflammation')
-
-
-    def test_marker_category_in_kit_model(self):
-        self.assertEqual(self.category.name, 'inflammation')
 
 
 
