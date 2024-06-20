@@ -25,7 +25,7 @@ class DetectionKit(models.Model):
 
     class Meta:
         verbose_name = 'SNP detection kit'
-        verbose_name_plural = '2. SNP detection kits'
+        verbose_name_plural = '1. SNP detection kits'
 
     def __str__(self):
         return f'{self.name}'
@@ -115,7 +115,7 @@ class ConclusionsForSNP(models.Model):
 
     class Meta:
         verbose_name ='conclusion for each SNP genotype'
-        verbose_name_plural = '3. conclusions for each SNP genotype '
+        verbose_name_plural = '2. conclusions for each SNP genotype '
 
     @property
     def short_conclusion(self):
