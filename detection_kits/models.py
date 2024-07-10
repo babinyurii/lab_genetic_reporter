@@ -3,13 +3,14 @@ from users.models import CustomUser
 from markers.models import SingleNucPol
 from django.template.defaultfilters import truncatewords
 from django.core.exceptions import ValidationError
-
+from .constants import CATEGORY_TYPES, ORDER
 
 class DetectionKit(models.Model):
     SNP = 'SNP'
     KIT_TYPE_CHOICES = (
         (SNP, 'in-house SNP assay'),
     )
+    
 
     name = models.CharField(max_length=255, unique=True)
     date_created = models.DateTimeField(auto_now_add=True, editable=False)
@@ -34,36 +35,15 @@ class DetectionKit(models.Model):
 
 
 class DetectionKitMarkers(models.Model):
-    ORDER_FOR_CONCLUSION = (
-        (1, 1),
-        (2, 2),
-        (3, 3),
-        (4, 4),
-        (5, 5),
-        (6, 6),
-        (7, 7),
-        (8, 8),
-        (9, 9),
-        (10, 10),
-    )
-
-    ORDER = (
-        (1, 1),
-        (2, 2),
-        (3, 3),
-        (4, 4),
-        (5, 5),
-        (6, 6),
-        (7, 7),
-        (8, 8),
-        (9, 9),
-        (10, 10),
-    )
+    ORDER_FOR_CONCLUSION = ORDER
+    ORDER = ORDER
+    CATEGORY_CHOICES = CATEGORY_TYPES
+    
     detection_kit = models.ForeignKey(DetectionKit,
                                       null=True, on_delete=models.SET_NULL)
     marker = models.ForeignKey(SingleNucPol,
                                null=True, on_delete=models.SET_NULL)
-    marker_category_in_kit = models.CharField(max_length=50, blank=True, null=True)
+    marker_category_in_kit = models.CharField(choices=CATEGORY_CHOICES, max_length=50, blank=True, null=True)
     category_order_in_conclusion = models.IntegerField(choices=ORDER, null=True, blank=True)
     marker_order_in_category = models.IntegerField(choices=ORDER_FOR_CONCLUSION, null=True, blank=True)
 
