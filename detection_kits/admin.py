@@ -44,10 +44,13 @@ class ConclusionsForSNPAdmin(admin.ModelAdmin):
         'genotype',
         'short_conclusion',
     )
-    
+    search_fields = ('conclusion',)
+    search_help_text = 'search by text in conclusion'
+
 
     list_filter = ('det_kit_marker__detection_kit',
-                    'det_kit_marker__marker' )
+                    'det_kit_marker__marker',
+                    'det_kit_marker__marker_category_in_kit')
 
     def has_add_permission(self, request, obj=None):
         return False
