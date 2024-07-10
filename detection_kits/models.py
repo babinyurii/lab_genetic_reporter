@@ -95,6 +95,9 @@ class ConclusionsForSNP(models.Model):
     def short_conclusion(self):
         return truncatewords(self.conclusion, 10)
 
+    def __str__(self):
+        return f'conclusion for {self.det_kit_marker}, genotype {self.genotype}'
+
 
 
 

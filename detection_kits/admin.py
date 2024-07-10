@@ -37,12 +37,14 @@ class DetectionKitAdmin(admin.ModelAdmin):
         )
 
 class ConclusionsForSNPAdmin(admin.ModelAdmin):
+    readonly_fields = ('det_kit_marker', 'genotype', )
     model = ConclusionsForSNP
     list_display = (
         'det_kit_marker',
         'genotype',
         'short_conclusion',
     )
+    
 
     list_filter = ('det_kit_marker__detection_kit',
                     'det_kit_marker__marker' )
