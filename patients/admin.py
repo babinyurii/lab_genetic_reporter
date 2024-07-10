@@ -95,12 +95,16 @@ class ReportCombinationsAdmin(admin.ModelAdmin):
                     'snp_2',
                     'genotype_snp_2',
                     'report', )
-    list_filter = ('report_rule_two_snp',)
+    list_filter = ('report_rule_two_snp__tests', 'report_rule_two_snp', )
     readonly_fields = ('report_rule_two_snp',
                        'snp_1',
                        'genotype_snp_1',
                        'snp_2',
                        'genotype_snp_2',)
+
+    search_fields = ('report', 'report_rule_two_snp__snp_1__rs', 'report_rule_two_snp__snp_2__rs',
+    'report_rule_two_snp__snp_1__gene_name_short', 'report_rule_two_snp__snp_2__gene_name_short',)
+    search_help_text = 'Search by text in report, by SNP rs id, or by short gene name'
 
     def tests(self, obj):
         return ', '.join(
