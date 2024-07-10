@@ -61,6 +61,10 @@ class DetectionKitMarkers(models.Model):
 
 
     def save(self, *args, **kwargs):
+        update_obj = False
+        if self.pk:
+            update_obj = True
+
         super().save(*args, **kwargs)
         nuc_var_1 = self.marker.nuc_var_1
         nuc_var_2 = self.marker.nuc_var_2
@@ -70,22 +74,12 @@ class DetectionKitMarkers(models.Model):
                     nuc_var_1 + nuc_var_2,
                     nuc_var_2 + nuc_var_2]
 
-
-        for genotype in genotypes:
-            ConclusionsForSNP.objects.create(
-                det_kit_marker = self,
-                genotype=genotype,
-
-            )
-
-    def clean(self):
-        num_of_concs = ConclusionsForSNP.objects.filter(
-            det_kit_marker=self.pk).all()
-        if num_of_concs.count() == 3:
-            raise ValidationError(
-                'Conclusions for this marker already exists')
-
-
+        if not update_obj:
+            for genotype in genotypes:
+                ConclusionsForSNP.objects.create(
+                    det_kit_marker = self,
+                    genotype=genotype,
+                )
 
 
 class ConclusionsForSNP(models.Model):

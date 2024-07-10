@@ -47,6 +47,9 @@ class ConclusionsForSNPAdmin(admin.ModelAdmin):
     list_filter = ('det_kit_marker__detection_kit',
                     'det_kit_marker__marker' )
 
+    def has_add_permission(self, request, obj=None):
+        return False
+
 
     
 
