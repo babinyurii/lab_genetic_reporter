@@ -3,13 +3,14 @@ from users.models import CustomUser
 from markers.models import SingleNucPol
 from django.template.defaultfilters import truncatewords
 from django.core.exceptions import ValidationError
-
+from .constants import CATEGORY_TYPES, ORDER
 
 class DetectionKit(models.Model):
     SNP = 'SNP'
     KIT_TYPE_CHOICES = (
         (SNP, 'in-house SNP assay'),
     )
+    
 
     name = models.CharField(max_length=255, unique=True)
     date_created = models.DateTimeField(auto_now_add=True, editable=False)
@@ -34,36 +35,15 @@ class DetectionKit(models.Model):
 
 
 class DetectionKitMarkers(models.Model):
-    ORDER_FOR_CONCLUSION = (
-        (1, 1),
-        (2, 2),
-        (3, 3),
-        (4, 4),
-        (5, 5),
-        (6, 6),
-        (7, 7),
-        (8, 8),
-        (9, 9),
-        (10, 10),
-    )
-
-    ORDER = (
-        (1, 1),
-        (2, 2),
-        (3, 3),
-        (4, 4),
-        (5, 5),
-        (6, 6),
-        (7, 7),
-        (8, 8),
-        (9, 9),
-        (10, 10),
-    )
+    ORDER_FOR_CONCLUSION = ORDER
+    ORDER = ORDER
+    CATEGORY_CHOICES = CATEGORY_TYPES
+    
     detection_kit = models.ForeignKey(DetectionKit,
                                       null=True, on_delete=models.SET_NULL)
     marker = models.ForeignKey(SingleNucPol,
                                null=True, on_delete=models.SET_NULL)
-    marker_category_in_kit = models.CharField(max_length=50, blank=True, null=True)
+    marker_category_in_kit = models.CharField(choices=CATEGORY_CHOICES, max_length=50, blank=True, null=True)
     category_order_in_conclusion = models.IntegerField(choices=ORDER, null=True, blank=True)
     marker_order_in_category = models.IntegerField(choices=ORDER_FOR_CONCLUSION, null=True, blank=True)
 
@@ -81,6 +61,10 @@ class DetectionKitMarkers(models.Model):
 
 
     def save(self, *args, **kwargs):
+        update_obj = False
+        if self.pk:
+            update_obj = True
+
         super().save(*args, **kwargs)
         nuc_var_1 = self.marker.nuc_var_1
         nuc_var_2 = self.marker.nuc_var_2
@@ -90,22 +74,12 @@ class DetectionKitMarkers(models.Model):
                     nuc_var_1 + nuc_var_2,
                     nuc_var_2 + nuc_var_2]
 
-
-        for genotype in genotypes:
-            ConclusionsForSNP.objects.create(
-                det_kit_marker = self,
-                genotype=genotype,
-
-            )
-
-    def clean(self):
-        num_of_concs = ConclusionsForSNP.objects.filter(
-            det_kit_marker=self.pk).all()
-        if num_of_concs.count() == 3:
-            raise ValidationError(
-                'Conclusions for this marker already exists')
-
-
+        if not update_obj:
+            for genotype in genotypes:
+                ConclusionsForSNP.objects.create(
+                    det_kit_marker = self,
+                    genotype=genotype,
+                )
 
 
 class ConclusionsForSNP(models.Model):
@@ -120,6 +94,9 @@ class ConclusionsForSNP(models.Model):
     @property
     def short_conclusion(self):
         return truncatewords(self.conclusion, 10)
+
+    def __str__(self):
+        return f'conclusion for {self.det_kit_marker}, genotype {self.genotype}'
 
 
 
