@@ -212,13 +212,16 @@ class ResultSNP(models.Model):
 
 
     def create_two_snp_report(self, results_snp):
-        text = ''
+        #text = ''
+        two_snp_report = {'two_snp_reports': []}
         rules = ReportRuleTwoSNP.objects.filter(tests=self.test).order_by('order_in_conclusion')
         for rule in rules:
             combs = ReportCombinations.objects.filter(
                 report_rule_two_snp=rule)
             snp_1_rs = rule.snp_1
+            print(snp_1_rs, flush=True)
             snp_2_rs = rule.snp_2
+            print(snp_2_rs, flush=True)
             snp_1_result = results_snp.get(rs=snp_1_rs).result
             snp_2_result = results_snp.get(rs=snp_2_rs).result
 
@@ -229,9 +232,17 @@ class ResultSNP(models.Model):
             except ObjectDoesNotExist:
                 raise ValidationError(
                     'seems like genotypes in results are not correct')
-            text += conclusion_for_result.report
-            text += '\n'
-        return text
+
+            two_snp_report['two_snp_reports'].append({
+                                        'snp_1_rs': snp_1_rs.rs, 
+                                        'snp_2_rs': snp_2_rs.rs, 
+                                        'snp_1_result': snp_1_result,
+                                        'snp_2_result': snp_2_result, 
+                                        'conc': conclusion_for_result.report})
+            #text += conclusion_for_result.report
+            #text += '\n'
+            print(two_snp_report)
+        return two_snp_report
     
 
     def create_conclusion(self, text):
