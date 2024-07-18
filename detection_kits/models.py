@@ -32,8 +32,6 @@ class DetectionKit(models.Model):
         return f'{self.name}'
 
 
-
-
 class DetectionKitMarkers(models.Model):
     ORDER_FOR_CONCLUSION = ORDER
     ORDER = ORDER
@@ -58,6 +56,7 @@ class DetectionKitMarkers(models.Model):
 
     def __str__(self):
         return f'detection kit: {self.detection_kit}, marker: {self.marker}'
+
 
 
     def save(self, *args, **kwargs):
