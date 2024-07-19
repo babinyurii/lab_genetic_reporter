@@ -86,10 +86,10 @@ class DetectionKitMarkers(models.Model):
                     genotype=genotype,
                 )
         """
-                ConclusionsForSNP.objects.create(
-                    det_kit_marker = self,
-                    genotype=genotype,
-                )          
+        ConclusionsForSNP.objects.create(
+            det_kit_marker = self,
+            genotype=genotype,
+        )          
         """
         if not update_obj:
             for genotype in genotypes:
