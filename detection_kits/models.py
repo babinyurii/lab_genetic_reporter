@@ -86,18 +86,7 @@ class DetectionKitMarkers(models.Model):
                     genotype=genotype,
                 )
         """
-        ConclusionsForSNP.objects.create(
-            det_kit_marker = self,
-            genotype=genotype,
-        )          
-        """
-        if not update_obj:
-            for genotype in genotypes:
-                ConclusionsForSNP.objects.create(
-                    det_kit_marker = self,
-                    genotype=genotype,
-                )
-        """
+    
 
 class ConclusionsForSNP(models.Model):
     det_kit_marker = models.ForeignKey(DetectionKitMarkers, on_delete=models.CASCADE)
