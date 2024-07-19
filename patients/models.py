@@ -7,9 +7,11 @@ from markers.models import SingleNucPol
 from detection_kits.models import DetectionKitMarkers, ConclusionsForSNP
 from django.core.exceptions import ValidationError
 from django.core.exceptions import ObjectDoesNotExist
-from patients.constants import allowed_chars
+from patients.constants import allowed_chars, ORDER_FOR_CONCLUSION
 from django.utils.timezone import now
 from django.core.exceptions import ObjectDoesNotExist
+from patients.utils import generate_text_for_conclusion
+
 
 def check_if_rs_exists(value):
     if not SingleNucPol.objects.filter(rs=value).exists():
@@ -146,33 +148,9 @@ class ResultSNP(models.Model):
                 two_snp_conc = self.create_two_snp_report(results_snp=results_snp)
                 one_snp_conc = self.create_one_snp_report(results_snp=results_snp)
 
-                text = self.generate_text_for_conclusion(two_snp_conc, one_snp_conc)
+                text = generate_text_for_conclusion(two_snp_conc, one_snp_conc)
              
                 self.create_conclusion(text=text)
-                
-
-    def generate_text_for_conclusion(self, two_snp_conc, one_snp_conc):
-        sep = '\n'
-        space = ' '
-        text = ''
-        
-        for report in two_snp_conc['two_snp_reports']:
-            text += f"{report['snp_1_rs']} {space} {report['snp_1_gene']}{space} {report['snp_1_result']}{space} {report['snp_2_rs']}{space} {report['snp_2_gene']}{space} {report['snp_2_result']}"
-            text += sep * 2
-            text += report['conc']
-            text += sep * 2
-        text += sep * 3
-
-        for category in one_snp_conc.keys():
-            text += category
-            text += sep * 2
-            reports = one_snp_conc[category]
-            for report in reports:
-                text += f"{report['rs']} {space}{report['gene']} {space}{report['genotype']}"
-                text += sep * 2
-                text += report['conc']
-       
-        return text
         
 
     def clean(self):
@@ -262,17 +240,6 @@ class ResultSNP(models.Model):
 
 
 class ReportRuleTwoSNP(models.Model):
-    ORDER_FOR_CONCLUSION = (
-        (1, 1),
-        (2, 2),
-        (3, 3),
-        (4, 4),
-        (5, 5),
-        (6, 6),
-        (7, 7),
-        (8, 8),
-        (9, 9),
-    )
 
     name = models.CharField(max_length=255, unique=True)
     tests = models.ManyToManyField(DetectionKit, related_name='report_rules')
