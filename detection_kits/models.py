@@ -3,15 +3,14 @@ from users.models import CustomUser
 from markers.models import SingleNucPol
 from django.template.defaultfilters import truncatewords
 from django.core.exceptions import ValidationError
-from .constants import CATEGORY_TYPES, ORDERfrom .constants import CATEGORY_TYPES, ORDER
+from .constants import CATEGORY_TYPES, ORDER
 
 class DetectionKit(models.Model):
     SNP = 'SNP'
     KIT_TYPE_CHOICES = (
         (SNP, 'in-house SNP assay'),
     )
-        
-
+    
 
     name = models.CharField(max_length=255, unique=True)
     date_created = models.DateTimeField(auto_now_add=True, editable=False)
@@ -38,15 +37,11 @@ class DetectionKitMarkers(models.Model):
     ORDER = ORDER
     CATEGORY_CHOICES = CATEGORY_TYPES
     
-    ORDER_FOR_CONCLUSION = ORDER
-    ORDER = ORDER
-    CATEGORY_CHOICES = CATEGORY_TYPES
-    
     detection_kit = models.ForeignKey(DetectionKit,
                                       null=True, on_delete=models.SET_NULL)
     marker = models.ForeignKey(SingleNucPol,
                                null=True, on_delete=models.SET_NULL)
-    marker_category_in_kit = models.CharField(choices=CATEGORY_CHOICES, choices=CATEGORY_CHOICES, max_length=50, blank=True, null=True)
+    marker_category_in_kit = models.CharField(choices=CATEGORY_CHOICES, max_length=50, blank=True, null=True)
     category_order_in_conclusion = models.IntegerField(choices=ORDER, null=True, blank=True)
     marker_order_in_category = models.IntegerField(choices=ORDER_FOR_CONCLUSION, null=True, blank=True)
 
@@ -65,10 +60,6 @@ class DetectionKitMarkers(models.Model):
 
 
     def save(self, *args, **kwargs):
-        update_obj = False
-        if self.pk:
-            update_obj = True
-
         update_obj = False
         if self.pk:
             update_obj = True
@@ -95,6 +86,18 @@ class DetectionKitMarkers(models.Model):
                     genotype=genotype,
                 )
         """
+                ConclusionsForSNP.objects.create(
+                    det_kit_marker = self,
+                    genotype=genotype,
+                )          
+        """
+        if not update_obj:
+            for genotype in genotypes:
+                ConclusionsForSNP.objects.create(
+                    det_kit_marker = self,
+                    genotype=genotype,
+                )
+        """
 
 class ConclusionsForSNP(models.Model):
     det_kit_marker = models.ForeignKey(DetectionKitMarkers, on_delete=models.CASCADE)
@@ -108,9 +111,6 @@ class ConclusionsForSNP(models.Model):
     @property
     def short_conclusion(self):
         return truncatewords(self.conclusion, 10)
-
-    def __str__(self):
-        return f'conclusion for {self.det_kit_marker}, genotype {self.genotype}'
 
     def __str__(self):
         return f'conclusion for {self.det_kit_marker}, genotype {self.genotype}'
