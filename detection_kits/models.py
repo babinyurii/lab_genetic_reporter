@@ -86,6 +86,7 @@ class DetectionKitMarkers(models.Model):
                     genotype=genotype,
                 )
         """
+    
 
 class ConclusionsForSNP(models.Model):
     det_kit_marker = models.ForeignKey(DetectionKitMarkers, on_delete=models.CASCADE)
