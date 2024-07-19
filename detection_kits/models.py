@@ -32,8 +32,6 @@ class DetectionKit(models.Model):
         return f'{self.name}'
 
 
-
-
 class DetectionKitMarkers(models.Model):
     ORDER_FOR_CONCLUSION = ORDER
     ORDER = ORDER
@@ -60,6 +58,7 @@ class DetectionKitMarkers(models.Model):
         return f'detection kit: {self.detection_kit}, marker: {self.marker}'
 
 
+
     def save(self, *args, **kwargs):
         update_obj = False
         if self.pk:
@@ -74,13 +73,19 @@ class DetectionKitMarkers(models.Model):
                     nuc_var_1 + nuc_var_2,
                     nuc_var_2 + nuc_var_2]
 
+        for genotype in genotypes:
+                ConclusionsForSNP.objects.create(
+                    det_kit_marker = self,
+                    genotype=genotype,
+                )          
+        """
         if not update_obj:
             for genotype in genotypes:
                 ConclusionsForSNP.objects.create(
                     det_kit_marker = self,
                     genotype=genotype,
                 )
-
+        """
 
 class ConclusionsForSNP(models.Model):
     det_kit_marker = models.ForeignKey(DetectionKitMarkers, on_delete=models.CASCADE)
