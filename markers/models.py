@@ -4,32 +4,10 @@ from django.core.validators import (URLValidator,
                                     MinValueValidator,
                                     MaxValueValidator,)
 from users.models import CustomUser
-
+from markers.constants import NUC_CHOICES, ALLELE_CLIN_SIGNIF_CHOICE
 
 class SingleNucPol(models.Model):
-    ADENINE = 'A'
-    CYTOSINE = 'C'
-    GUANINE = 'G'
-    THYMINE = 'T'
-    MMP3_al_1 = '5A'
-    MMP3_al_2 = '6A'
-    MMP1_del = '_'
-
-    NUC_CHOICES = (
-        (ADENINE, 'A'),
-        (CYTOSINE, 'C'),
-        (GUANINE, 'G'),
-        (THYMINE, 'T'),
-        (MMP3_al_1, '5A'),
-        (MMP3_al_2, '6A'),
-        (MMP1_del, '_'),
-    )
-
-    ALLELE_CLIN_SIGNIF_CHOICE = (
-        ('NORM', 'NORM'),
-        ('RISK', 'RISK'),
-        ('UNKNOWN', 'UNKNOWN'),
-    )
+    
 
     rs = models.CharField(max_length=20, verbose_name='rs id', unique=True)
     gene_name_short = models.CharField(max_length=20,

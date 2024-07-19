@@ -7,8 +7,11 @@ from markers.models import SingleNucPol
 from detection_kits.models import DetectionKitMarkers, ConclusionsForSNP
 from django.core.exceptions import ValidationError
 from django.core.exceptions import ObjectDoesNotExist
-from patients.constants import allowed_chars
+from patients.constants import allowed_chars, ORDER_FOR_CONCLUSION
 from django.utils.timezone import now
+from django.core.exceptions import ObjectDoesNotExist
+from patients.utils import generate_text_for_conclusion
+
 
 def check_if_rs_exists(value):
     if not SingleNucPol.objects.filter(rs=value).exists():
@@ -145,29 +148,10 @@ class ResultSNP(models.Model):
                 two_snp_conc = self.create_two_snp_report(results_snp=results_snp)
                 one_snp_conc = self.create_one_snp_report(results_snp=results_snp)
 
-                ##########################33
-                # into method
-                #print('*' * 100, one_snp_conc, flush=True)
-                t = ''
-                for key, value in one_snp_conc.items():
-                    t += key
-                    t += '\n'
-                    for i in value:
-                        counter = 0
-                        for j in i:
-                            t += j
-                            if counter == 2:
-                                t += '\n'
-                            t += ' '
-                            counter += 1
-                        t += '\n'
-                    t += '\n'
-
-                two_snp_conc += t
-                # into method
-                ################################
-                self.create_conclusion(text=two_snp_conc)
-                
+                text = generate_text_for_conclusion(two_snp_conc, one_snp_conc)
+             
+                self.create_conclusion(text=text)
+        
 
     def clean(self):
         nuc_vars = [self.rs.nuc_var_1 + self.rs.nuc_var_1,
@@ -183,40 +167,39 @@ class ResultSNP(models.Model):
             detection_kit=self.test).order_by(
                 'category_order_in_conclusion','marker_order_in_category')
 
-        #print('det_kit_markers filtered: ', det_kit_markers)
-        results = dict()
+        results = {}
         current_category_name = None
 
         for det_kit_marker in det_kit_markers:
             if det_kit_marker.marker_category_in_kit not in results.keys():
                 results[det_kit_marker.marker_category_in_kit] = []
                 current_category_name = det_kit_marker.marker_category_in_kit
-            #print('det_kit_marker: ', det_kit_marker, flush=True)
-            #print('results: ', results, flush=True)
+           
             marker_result = results_snp.get(rs=det_kit_marker.marker)
             result_genotype = marker_result.result
 
             concs_variants = ConclusionsForSNP.objects.filter(det_kit_marker=det_kit_marker)
-            conc_for_result_genotype = concs_variants.get(genotype=result_genotype)
+            try:
+                conc_for_result_genotype = concs_variants.get(genotype=result_genotype)
+            except ObjectDoesNotExist:
+                continue
 
-            results[current_category_name].append(
-                [det_kit_marker.marker.rs, 
-                det_kit_marker.marker.gene_name_short, 
-                result_genotype, 
-                conc_for_result_genotype.conclusion])
-            #print(results, flush=True)
+
+            results[current_category_name].append({'rs': det_kit_marker.marker.rs,
+                                                    'gene': det_kit_marker.marker.gene_name_short, 
+                                                    'genotype': result_genotype,
+                                                    'conc': conc_for_result_genotype.conclusion})
+           
         return results
                     
 
-
-
-
     def create_two_snp_report(self, results_snp):
-        text = ''
+        two_snp_report = {'two_snp_reports': []}
         rules = ReportRuleTwoSNP.objects.filter(tests=self.test).order_by('order_in_conclusion')
         for rule in rules:
             combs = ReportCombinations.objects.filter(
                 report_rule_two_snp=rule)
+            # don't forget, here we get objects
             snp_1_rs = rule.snp_1
             snp_2_rs = rule.snp_2
             snp_1_result = results_snp.get(rs=snp_1_rs).result
@@ -229,9 +212,16 @@ class ResultSNP(models.Model):
             except ObjectDoesNotExist:
                 raise ValidationError(
                     'seems like genotypes in results are not correct')
-            text += conclusion_for_result.report
-            text += '\n'
-        return text
+
+            two_snp_report['two_snp_reports'].append({
+                                        'snp_1_rs': snp_1_rs.rs, 
+                                        'snp_2_rs': snp_2_rs.rs, 
+                                        'snp_1_gene': snp_1_rs.gene_name_short,
+                                        'snp_2_gene': snp_2_rs.gene_name_short,
+                                        'snp_1_result': snp_1_result,
+                                        'snp_2_result': snp_2_result, 
+                                        'conc': conclusion_for_result.report})
+        return two_snp_report
     
 
     def create_conclusion(self, text):
@@ -250,17 +240,6 @@ class ResultSNP(models.Model):
 
 
 class ReportRuleTwoSNP(models.Model):
-    ORDER_FOR_CONCLUSION = (
-        (1, 1),
-        (2, 2),
-        (3, 3),
-        (4, 4),
-        (5, 5),
-        (6, 6),
-        (7, 7),
-        (8, 8),
-        (9, 9),
-    )
 
     name = models.CharField(max_length=255, unique=True)
     tests = models.ManyToManyField(DetectionKit, related_name='report_rules')
