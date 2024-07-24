@@ -172,7 +172,7 @@ class TestPatientAppModels(TestCase):
         conc = ConclusionSNP.objects.get(test=self.detection_kit, patient=self.patient)
         # the result in report only for one combination: snp1 and snp2
         self.assertIn('report: GG and CC\n', conc.conclusion, )
-        print('conclusion: ', conc.conclusion)
+        #print('conclusion: ', conc.conclusion)
         
         for snp in snps:
             self.assertIn(f'single nuc conclusion for: {snp.nuc_var_1}{snp.nuc_var_1}', conc.conclusion,)

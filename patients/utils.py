@@ -17,7 +17,7 @@ def generate_text_for_conclusion(two_snp_conc, one_snp_conc):
         text += snp_sep * 50 + sep
     text += category_sep * 50 + sep
     
-    print(one_snp_conc, flush=True)
+    #print(one_snp_conc, flush=True)
     for category in one_snp_conc.keys():
         if category is not None:
             text += category
