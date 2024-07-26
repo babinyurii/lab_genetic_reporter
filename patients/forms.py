@@ -1,8 +1,21 @@
 
 from django import forms
 from django.core.exceptions import ValidationError
-from patients.models import ReportRuleTwoSNP
+from patients.models import ReportRuleTwoSNP, ResultSNP
 
+
+class ResultSNPForm(forms.ModelForm):
+
+    def __init__(self, *args, **kwargs):
+        super(ResultSNPForm, self).__init__(*args, **kwargs)
+      
+        CHOICES = [(self.instance.rs.nuc_var_1 + self.instance.rs.nuc_var_1,) * 2,
+                    (self.instance.rs.nuc_var_1 + self.instance.rs.nuc_var_2,) * 2,
+                    (self.instance.rs.nuc_var_2 + self.instance.rs.nuc_var_2,) * 2,]
+        self.fields['result'] = forms.ChoiceField(
+            choices=CHOICES)
+
+ 
 
 class ReportRuleForm(forms.ModelForm):
 
