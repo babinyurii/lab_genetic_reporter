@@ -12,12 +12,15 @@ def generate_text_for_conclusion(two_snp_conc, one_snp_conc):
             {report['snp_1_result']}{space} {sep} SNP2:  {report['snp_2_rs']}{space} {report['snp_2_gene']}{space}\
                     {report['snp_2_result']}"
         text += sep * 2
-        text += report['conc']
+        if report['conc'] is not None:
+            text += report['conc']
+        else:
+            text += 'None, no conclusion in db'
         text += sep * 2 
         text += snp_sep * 50 + sep
     text += category_sep * 50 + sep
     
-    print(one_snp_conc, flush=True)
+    #print(one_snp_conc, flush=True)
     for category in one_snp_conc.keys():
         if category is not None:
             text += category
