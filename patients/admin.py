@@ -7,7 +7,7 @@ from patients.models import (PatientSample,
                              ReportCombinations,
                              ConclusionSNP)
 
-from patients.forms import ReportRuleForm
+from patients.forms import ReportRuleForm, ResultSNPForm
 from markers.models import SingleNucPol
 
 
@@ -53,6 +53,7 @@ class PatientSampleAdmin(admin.ModelAdmin):
 
 
 class ResultSNPAdmin(admin.ModelAdmin):
+    form = ResultSNPForm
     readonly_fields = ('patient_sample', 'test', 'rs')
 
     list_display = ('patient_sample',
@@ -67,6 +68,7 @@ class ResultSNPAdmin(admin.ModelAdmin):
 
     def has_add_permission(self, request, obj=None):
         return False
+
 
 
 class ReportRuleTwoSNPAdmin(admin.ModelAdmin):
